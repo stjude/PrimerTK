@@ -1,0 +1,29 @@
+ref_genome:
+  class: File
+  path: /research/rgs01/reference/public/genomes/Homo_sapiens/GRCh37-lite/FASTA/GRCh37-lite.fa
+
+regions_file:
+  class: File
+  path: /home/dkennetz/PrimerPlex/genomeSV/tests/input1.txt
+
+primer_opt_size: 22
+primer_min_size: 18
+primer_max_size: 25
+primer_opt_gc: 50
+primer_min_gc: 20
+primer_max_gc: 80
+primer_opt_tm: 60
+primer_min_tm: 57
+primer_max_tm: 63
+product_size_range: '200-400'
+flanking_region_size: 200
+sequence_target: '199,1'
+mispriming_library: '/home/dkennetz/PrimerPlex/genomeStandard/tests/humrep.ref'
+thermodynamics_path: '/home/dkennetz/primer3/src/primer3_config/'
+output: 'primer_dump.txt'
+outfile: 'total_list.csv'
+sv_type: deletion
+outfile_snp: 'snp_annotated_primers.csv'
+vcf_in:
+  class: File
+  path: /home/dkennetz/tabix_indexed_genome/GRCh37/All_20180423.vcf.gz
