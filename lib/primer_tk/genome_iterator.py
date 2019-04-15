@@ -16,19 +16,20 @@ import argparse
 from Bio import SeqIO
 import pandas as pd
 
-def get_args_iterator(argv):
+def add_iterator_subparser(subparser):
     """
     Get commandline arguments
     Args:
-        argv (list): List of strings to parse as argv.
+        subparser (?): Subparser object.
     Returns:
         args (Namespace): the parsed arguments.
     """
 
-    parser = argparse.ArgumentParser(description='Command Line arguments for Primer3 setup')
-    parser.add_argument("-ref", "--ref_genome", dest="ref_genome",
+    parser = subparser.add_parser("iterator", help="Iterator subparser")
+
+    parser.add_argument("-ref", "--ref_genome", required=True,
                         help="Reference Genome File to design primers around")
-    parser.add_argument("-in", "--regions_file", dest="regions_file",
+    parser.add_argument("-in", "--regions_file", required=True,
                         help="File with regions to design primers around")
     parser.add_argument("-opt_size", "--primer_opt_size",
                         dest="primer_opt_size", default="22",
@@ -75,8 +76,7 @@ def get_args_iterator(argv):
                         help="full path to thermo parameters for primer3 to use\
                               (/hpcf/apps/primer3/install/2.4.0/src/primer3_config/) install loc")
 
-    args = parser.parse_args(argv)
-    return args
+    return parser
 
 def genome_iterator(genome):
     """
@@ -219,87 +219,6 @@ def create_flanking_regions_fasta(genome, dataframe, flanking_region_size):
                                     int(pos)+int(flanking_region_size)]
                 output.append((header, flank_seq.upper()))
     return output
-
-def main():
-    """
-    Use an input regions file with specific region of interest\
-    to design primers around, then run primer3.
-    """
-
-    # dedicated string of time for filename output.
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    # read in args
-    args = get_args_iterator()
-    # 1) create genome tuple from provided reference
-    genome = genome_iterator(args.ref_genome)
-    # 2) create dataframe from input regions file
-    small_regions = file_extension(args.regions_file)
-    # 3) ensure proper proper number of columns in dataframe
-    assert len(list(small_regions)) == 4, "DataFrame contains more than 4 columns...\
-                                           Improper format."
-    # 4) format dataframe "chr" column to match reference genome
-    small_regions = match_chr_to_genome(small_regions, genome)
-    # 5) generate flanking regions fasta based on position in input file
-    flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
-    flank_data = create_flanking_regions_fasta(genome, small_regions, args.flanking_region_size)
-    primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
-    for head, seq in flank_data:
-        flanking.write(">"+head+'\n'+seq+'\n')
-    # 6) generate primer3 input file
-        primer3_in.write("SEQUENCE_ID="+head+'\n'
-                         +"SEQUENCE_TEMPLATE="+seq+'\n'
-                         +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
-                         +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
-                         +"PRIMER_TASK=pick_detection_primers"+'\n'
-                         +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
-                         +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
-                         +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
-                         +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
-                         +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
-                         +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
-                         +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
-                         +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
-                         +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
-                         +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
-                         +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
-                         +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
-                         +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
-                         +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
-                         +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
-                         +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
-                         +"PRIMER_SALT_DIVALENT=1.5"+'\n'
-                         +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
-                         +"PRIMER_DNTP_CONC=0.6"+'\n'
-                         +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
-                         +"PRIMER_DNA_CONC=50.0"+'\n'
-                         +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
-                         +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
-                         +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
-                         +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
-                         +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
-                         +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
-                         +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
-                         +"PRIMER_MAX_POLY_X=3"+'\n'
-                         +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
-                         +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
-                         +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
-                         +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
-                         +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
-                         +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
-                         +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
-                         +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
-                         +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
-                         +"PRIMER_NUM_RETURN=5"+'\n'
-                         +"P3_FILE_FLAG=1"+'\n'
-                         +"PRIMER_EXPLAIN_FLAG=1"+'\n'
-                         +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
-                         +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
-                         +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
-                         +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
-                         +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
-                         +"="+'\n')
-    flanking.close()
-    primer3_in.close()
 
 if __name__ == "__main__":
     main()

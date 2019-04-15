@@ -13,14 +13,15 @@ import argparse
 import pandas as pd
 import sequence_info as seqinf
 
-def get_args_pcr_analysis():
+def add_post_subparser(subparser):
+    """ Add subparser for postprocessing step.
+
+    Args:
+        subparser (?): Subparser object.
+
+    Returns: None
     """
-    Returns arguments for PCR analysis.
-    Args: None
-    Returns:
-    args (NameSpace): the args
-    """
-    parser = argparse.ArgumentParser(description='Parses info from pcr_output')
+    parser = subparser.add_parser("post", description='Parses info from pcr_output')
     parser.add_argument("-i", "--pcr_output",
                         dest="pcrfile", default="pcr_output.txt",
                         help="use output of isPCR")
@@ -29,8 +30,7 @@ def get_args_pcr_analysis():
                         dest="total_primers",
                         help="the pre-PCR master primer file that\
                               contains all sample + primer info.")
-    args = parser.parse_args()
-    return args
+
 
 def fasta_parser(pcrfile):
     """
