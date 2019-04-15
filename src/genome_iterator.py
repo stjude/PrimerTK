@@ -16,12 +16,13 @@ import argparse
 from Bio import SeqIO
 import pandas as pd
 
-def get_args_iterator():
+def get_args_iterator(argv):
     """
     Get commandline arguments
-    Args: None
+    Args:
+        argv (list): List of strings to parse as argv.
     Returns:
-    args (Namespace): the parsed arguments.
+        args (Namespace): the parsed arguments.
     """
 
     parser = argparse.ArgumentParser(description='Command Line arguments for Primer3 setup')
@@ -74,7 +75,7 @@ def get_args_iterator():
                         help="full path to thermo parameters for primer3 to use\
                               (/hpcf/apps/primer3/install/2.4.0/src/primer3_config/) install loc")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     return args
 
 def genome_iterator(genome):

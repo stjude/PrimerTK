@@ -34,7 +34,7 @@ class TestPrimerCrossHyb(unittest.TestCase):
         self.primer_df = create_df([prim_list_0, prim_list_1, prim_list_2,
                                     prim_list_3, prim_list_4])
         self.primer_df = self.primer_df.loc[~(self.primer_df['Primer Left Seq'] == 'NA')]
-        self.parser = pch.get_args_hyb()
+        self.parser = pch.get_args_hyb([])
         self.pa = 50
         self.fp_len = pch.get_fprimer_percent_aln(self.primer_df['Primer Left Seq'], self.pa)
         self.pd_compare_1_2 =  pch.primer_dimer_local(self.fp_len, self.primer_df['Sequence ID'],

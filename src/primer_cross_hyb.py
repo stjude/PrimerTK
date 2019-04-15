@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Modules required for program.
  - python3.6+
@@ -7,15 +6,17 @@ Modules required for program.
     - argparse
     - sequence_info
 """
+
 import argparse
 import sequence_info as seqinf
 
-def get_args_hyb():
+def get_args_hyb(argv):
     """
-    get commandline arguments.
-    Args: None
+    Get commandline arguments.
+    Args:
+        argv (list): List of strings representing argv.
     Returns:
-    args (NameSpace): the commandline arguments
+        args (NameSpace): the commandline arguments
     """
 
     parser = argparse.ArgumentParser(description='Command Line argument for total primer\
@@ -37,7 +38,7 @@ def get_args_hyb():
     parser.add_argument("-pcr", "--pcr_type", dest="pcr",
                         choices=['standard', 'multiplex'],
                         help="perform standard or multiplex pcr on given inputs.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     return args
 
 def get_fprimer_percent_aln(fprimer, percent_alignment):
@@ -64,7 +65,7 @@ def primer_dimer_local(aln_len_list, names, seq1, seq2):
     between aligned primers (forming dimer) if they meet the min score set in the func.
     Args:
         min_dimer_alignment (int): the minimum alignment score between 2 primers before
-        it is thrown out
+            it is thrown out
         names (string): sequence ID
         seq1 (string): primer1 sequence
         seq2 (string): primer2 sequence
