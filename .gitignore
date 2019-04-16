@@ -1,3 +1,4 @@
 *.py~
+*.cwl~
 __pycache__
 *.pyc
