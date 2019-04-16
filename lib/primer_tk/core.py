@@ -3,18 +3,8 @@
 
 from primer_tk import genome_iterator
 from primer_tk import analyze_pcr_output as ap
+from primer_tk.mp_class import MissingPrimers
 
-
-def genome_iterator(args):
-    """ Genome iterator core module
-
-    Args:
-        args (Namespace): Argparse object.
-
-    Returns: None
-    """
-
-    genome_iterator.main(args)
 
 def iterator(args):
     """ Use an input regions file with specific region of interest\
@@ -102,6 +92,7 @@ def iterator(args):
 def pre(args):
     """ Function for all steps leading up to PCR. """
     # 1) Initialize primer lists by rank for each sample
+    print(args.dump)
     prim_list_0 = MissingPrimers(args.dump, 0).samp_primer_info
     prim_list_1 = MissingPrimers(args.dump, 1).samp_primer_info
     prim_list_2 = MissingPrimers(args.dump, 2).samp_primer_info

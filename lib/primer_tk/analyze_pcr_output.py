@@ -9,9 +9,11 @@ Dependencies required to run program:
 A subset of functions used after PCR.
 """
 
+import sys
+import os
 import argparse
 import pandas as pd
-import sequence_info as seqinf
+from primer_tk import sequence_info as seqinf
 
 def add_post_subparser(subparser):
     """ Add subparser for postprocessing step.
@@ -27,7 +29,6 @@ def add_post_subparser(subparser):
                         help="use output of isPCR")
 
     parser.add_argument("-tp", "--total_primers",
-                        dest="total_primers",
                         help="the pre-PCR master primer file that\
                               contains all sample + primer info.")
 
@@ -44,6 +45,8 @@ def fasta_parser(pcrfile):
     """
     seqs = []
     headers = []
+    if not os.path.exists(pcrfile):
+        sys.exit("ERROR: pcr_file '%s' DNE"%(pcrfile))
     with open(pcrfile) as pcr_file:
         sequence = ""
         header = None

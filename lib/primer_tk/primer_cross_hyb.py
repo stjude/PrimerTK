@@ -8,7 +8,7 @@ Modules required for program.
 """
 
 import argparse
-import sequence_info as seqinf
+from primer_tk import sequence_info as seqinf
 
 def add_pre_subparser(subparser):
     """ Add subparser for 'pre' step.
@@ -23,18 +23,16 @@ def add_pre_subparser(subparser):
                                                   of complementarity with each other as defined\
                                                   by the user. Default is 60% (fairly strict).')
 
-    parser.add_argument("-d", "--primer3_dump",
-                        dest="dump",
+    parser.add_argument("-d", "--primer3_dump", dest="dump", required=True,
                         help="Primer3 stdout passed into a 'dump' file to be used as input")
 
-    parser.add_argument("-o", "--outfile_name",
-                        dest="outfile",
+    parser.add_argument("-o", "--outfile_name", dest="outfile", required=True,
                         help="The output filename for all primer information.")
     parser.add_argument("-pa", "--percent_alignment", dest="percent_alignment",
                         default="60", help="Percent match between 2 primers for pair to be\
                                             discarded. EX: primer_len = 22, percent_aln = 60\
                                             dimer_len = (60/100) * 22 = 13.2 -> 13.")
-    parser.add_argument("-pcr", "--pcr_type", dest="pcr",
+    parser.add_argument("-pcr", "--pcr_type", dest="pcr", required=True,
                         choices=['standard', 'multiplex'],
                         help="perform standard or multiplex pcr on given inputs.")
 
