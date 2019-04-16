@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """ Core modules """
 
+import time
+from pysam import VariantFile
 from primer_tk import genome_iterator as gi
 from primer_tk import analyze_pcr_output as ap
 from primer_tk.mp_class import MissingPrimers
 from primer_tk.mp_class import create_df
 import primer_tk.primer_cross_hyb as pch
-import time
-
+from primer_tk import primer_tabix as pt
 
 def iterator(args):
-    """ Use an input regions file with specific region of interest\
-        to design primers around, then run primer3.
+    """
+    Use an input regions file with specific region of interest\
+    to design primers around, then run primer3.
 
     Args:
         args (Namespace): Argparse object or None.
@@ -210,5 +212,40 @@ def post(args):
     plate_forward_primers.to_csv('plate_forward_primers.csv', index=False)
     plate_reverse_primers.to_csv('plate_reverse_primers.csv', index=False)
 
+def tabix(args):
+    """
+    Annotates primers with SNP information.
+    """
+    vcf_in = VariantFile(args.vcf)
+    p_info = pt.create_tabix_df(args.p_info)
+    p_left = pt.primer_range_left(p_info["Sequence ID"],
+                                  p_info["Primer Rank"],
+                                  p_info["Chromosome"],
+                                  p_info["Primer Left Seq"],
+                                  p_info["Position1"])
+    p_right = pt.primer_range_right(p_info["Sequence ID"],
+                                    p_info["Primer Rank"],
+                                    p_info["Chromosome"],
+                                    p_info["Primer Right Seq"],
+                                    p_info["Position2"])
+    pn_left = pt.match_pinfo_to_vcf(p_left, vcf_in)
+    pn_right = pt.match_pinfo_to_vcf(p_right, vcf_in)
+    left_snps = pt.tabix_fetch(pn_left["Sequence ID"],
+                               pn_left["Primer Rank"],
+                               pn_left["Chromosome"],
+                               pn_left["Position1"],
+                               pn_left["Position2"],
+                               vcf_in)
+    right_snps = pt.tabix_fetch(pn_right["Sequence ID"],
+                                pn_right["Primer Rank"],
+                                pn_right["Chromosome"],
+                                pn_right["Position1"],
+                                pn_right["Position2"],
+                                vcf_in)
+    print(left_snps)
+    left_df = pt.tabix_results_to_df(left_snps, "L", "Left SNP Count")
+    right_df = pt.tabix_results_to_df(right_snps, "R", "Right SNP Count")
+    merged_df = pt.merge_left_right(left_df, right_df, p_info)
+    merged_df.to_csv(args.output, index=False)
 
 
