@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """ Core modules """
 
-from primer_tk import genome_iterator
+from primer_tk import genome_iterator as gi
 from primer_tk import analyze_pcr_output as ap
 from primer_tk.mp_class import MissingPrimers
+from primer_tk.mp_class import create_df
+import primer_tk.primer_cross_hyb as pch
+import time
 
 
 def iterator(args):
@@ -19,17 +22,17 @@ def iterator(args):
     # dedicated string of time for filename output.
     timestr = time.strftime("%Y%m%d-%H%M%S")
     # 1) create genome tuple from provided reference
-    genome = genome_iterator(args.ref_genome)
+    genome = gi.genome_iterator(args.ref_genome)
     # 2) create dataframe from input regions file
-    small_regions = file_extension(args.regions_file)
+    small_regions = gi.file_extension(args.regions_file)
     # 3) ensure proper proper number of columns in dataframe
     assert len(list(small_regions)) == 4, "DataFrame contains more than 4 columns...\
                                            Improper format."
     # 4) format dataframe "chr" column to match reference genome
-    small_regions = match_chr_to_genome(small_regions, genome)
+    small_regions = gi.match_chr_to_genome(small_regions, genome)
     # 5) generate flanking regions fasta based on position in input file
     flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
-    flank_data = create_flanking_regions_fasta(genome, small_regions, args.flanking_region_size)
+    flank_data = gi.create_flanking_regions_fasta(genome, small_regions, args.flanking_region_size)
     primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
     for head, seq in flank_data:
         flanking.write(">"+head+'\n'+seq+'\n')

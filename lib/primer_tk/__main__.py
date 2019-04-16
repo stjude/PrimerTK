@@ -40,7 +40,7 @@ def main():
     action = sys.argv[1]
 
     if action == "iterator":
-        genome_iterator.main(args)
+        core.iterator(args)
     elif action == "pre":
         core.pre(args)
     elif action == "post":
