@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # test developed by JRM3
 
-export PYTHONPATH=../../lib/primer_tk/:$PYTHONPATH
+export PYTHONPATH=$(readlink -f ../../lib):$PYTHONPATH
 
 SKIP_COVERED=""
 COVERAGE=""

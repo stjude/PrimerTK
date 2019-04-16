@@ -6,16 +6,15 @@ Python version: Python 3.6.8 :: Anaconda, Inc.
 Date: 02/28/2019
 Dependencies:
  - unittest
- - pandas>=0.22.0
 """
 
 import unittest
 import pandas as pd
-import genome_iterator as gi
+import genome_iterator_sv as gi
 
 class TestGenomeIterator(unittest.TestCase):
     """
-    Subclass of unittest to test genome_iterator.py
+    Subclass of unittest to test genome_iterator_sv.py
     """
     def setUp(self):
         self.ref_genome = "test.fa"
@@ -23,7 +22,8 @@ class TestGenomeIterator(unittest.TestCase):
         self.test_input = 'input2.csv'
         self.test_input2 = 'input1.txt'
         self.test_input3 = 'input3.fa'
-        self.parser = gi.get_args_iterator([])
+        self.parser = gi.get_args_iterator()
+
     def test_parser(self):
         """
         Test commandline arguments
@@ -69,7 +69,6 @@ class TestGenomeIterator(unittest.TestCase):
         """
         dataframe = gi.file_extension(self.test_input)
         self.assertTrue(isinstance(gi.match_chr_to_genome(dataframe, self.genome), pd.DataFrame))
-
 
     def test_flanking_regions_fasta(self):
         """

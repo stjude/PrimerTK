@@ -11,7 +11,7 @@ Dependencies:
 
 import unittest
 import pandas as pd
-import genome_iterator as gi
+from primer_tk import genome_iterator as gi
 
 class TestGenomeIterator(unittest.TestCase):
     """
@@ -23,12 +23,7 @@ class TestGenomeIterator(unittest.TestCase):
         self.test_input = 'input2.csv'
         self.test_input2 = 'input1.txt'
         self.test_input3 = 'input3.fa'
-        self.parser = gi.get_args_iterator([])
-    def test_parser(self):
-        """
-        Test commandline arguments
-        """
-        self.assertTrue(self.parser.primer_opt_size)
+        #self.parser = gi.get_args_iterator([])
 
     def test_genome_iterator(self):
         """

@@ -12,9 +12,9 @@ Modules required for program.
 import unittest
 from io import StringIO
 import argparse
-from mp_class import MissingPrimers
-from mp_class import create_df
-import primer_cross_hyb as pch
+from primer_tk.mp_class import MissingPrimers
+from primer_tk.mp_class import create_df
+from primer_tk import primer_cross_hyb as pch
 
 class TestPrimerCrossHyb(unittest.TestCase):
     """
@@ -34,7 +34,6 @@ class TestPrimerCrossHyb(unittest.TestCase):
         self.primer_df = create_df([prim_list_0, prim_list_1, prim_list_2,
                                     prim_list_3, prim_list_4])
         self.primer_df = self.primer_df.loc[~(self.primer_df['Primer Left Seq'] == 'NA')]
-        self.parser = pch.get_args_hyb([])
         self.pa = 50
         self.fp_len = pch.get_fprimer_percent_aln(self.primer_df['Primer Left Seq'], self.pa)
         self.pd_compare_1_2 =  pch.primer_dimer_local(self.fp_len, self.primer_df['Sequence ID'],
@@ -42,12 +41,6 @@ class TestPrimerCrossHyb(unittest.TestCase):
                                                       self.primer_df['Primer Right Seq'])
 
 
-
-    def test_parser(self):
-        """
-        Test commandline arguments
-        """
-        self.assertTrue(self.parser.percent_alignment)
 
     def test_get_fprimer_percent_aln(self):
         """
