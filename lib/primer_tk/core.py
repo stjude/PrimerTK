@@ -242,10 +242,7 @@ def tabix(args):
                                 pn_right["Position1"],
                                 pn_right["Position2"],
                                 vcf_in)
-    print(left_snps)
     left_df = pt.tabix_results_to_df(left_snps, "L", "Left SNP Count")
     right_df = pt.tabix_results_to_df(right_snps, "R", "Right SNP Count")
     merged_df = pt.merge_left_right(left_df, right_df, p_info)
     merged_df.to_csv(args.output, index=False)
-
-
