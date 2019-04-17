@@ -4,7 +4,7 @@
 import sys
 import argparse
 
-from primer_tk import genome_iterator, primer_cross_hyb, analyze_pcr_output, \
+from primer_tk import genome_iterator, primer_cross_hyb, analyze_pcr_output, primer_tabix, \
     __version__
 
 from primer_tk import core
@@ -27,6 +27,7 @@ def get_args(argv):
     genome_iterator.add_iterator_subparser(subparser)
     primer_cross_hyb.add_pre_subparser(subparser)
     analyze_pcr_output.add_post_subparser(subparser)
+    primer_tabix.add_tabix_subparser(subparser)
 
     args = parser.parse_args(argv)
 
@@ -40,11 +41,13 @@ def main():
     action = sys.argv[1]
 
     if action == "iterator":
-        genome_iterator.main(args)
+        core.iterator(args)
     elif action == "pre":
         core.pre(args)
     elif action == "post":
         core.post(args)
+    elif action =="tabix":
+        core.tabix(args)
 
     print(action)
     print(args)
