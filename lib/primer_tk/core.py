@@ -311,6 +311,25 @@ def pre(args):
     else:
         print("Please select pcr setup")
 
+def pre_sv(args):
+    """
+    Function for all steps leading up to PCR.
+    """
+    # 1) Initialize primer lists by rank for each sample
+    prim_list_0 = MissingPrimers(args.dump, 0).samp_primer_info
+    prim_list_1 = MissingPrimers(args.dump, 1).samp_primer_info
+    prim_list_2 = MissingPrimers(args.dump, 2).samp_primer_info
+    prim_list_3 = MissingPrimers(args.dump, 3).samp_primer_info
+    prim_list_4 = MissingPrimers(args.dump, 4).samp_primer_info
+    # 2) Generate the output df
+    primer_df = create_df([prim_list_0, prim_list_1, prim_list_2,
+                           prim_list_3, prim_list_4])
+    # 3) Generate csv output
+    primer_df = primer_df.loc[~(primer_df['Primer Left Seq'] == 'NA')]
+    primer_df.to_csv(args.outfile, index=False)
+    # 4) create standard pcr input
+    sps.standard_pcr(primer_df)
+
 def post(args):
     """
     Generates pcr analysis dataframes and applies primer filtering based on
@@ -351,5 +370,22 @@ def post(args):
     plate_forward_primers.to_csv('plate_forward_primers.csv', index=False)
     plate_reverse_primers.to_csv('plate_reverse_primers.csv', index=False)
 
+def post_sv(args):
+    """
+    Generates pcr analysis dataframes and applies primer filtering based on
+    off-target amplification. Then compares good primers to initial primer
+    list to find which primer pair was generated and top ranking.
+    Finally, produces easy to use IDT order sheet in plate format (standard PCR only).
+    """
+    # 2) Generate seqs and headers lists
+    seqs, headers = ap.fasta_parser(args.flank_file)
+    # 3) Calculate GC of each PCR product and store in list
+    positions_to_compare = ap.amp_header_region(args.total_primers)
+    sliced_seqs = ap.get_gc_region(seqs, headers, positions_to_compare)
+    gc_calc = ap.calc_gc(sliced_seqs)
+    merged_df = ap.merge_dfs(gc_calc, args.total_primers, seqs)
+    merged_df.to_csv('total_list_gc.csv', index=False)
+    merged_df.drop_duplicates('Sequence ID', keep='first', inplace=True)
+    merged_df.to_csv('top_ranked_final_primers.csv', index=False)
 
 
