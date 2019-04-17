@@ -1,3 +1,0 @@
-gene1	sample1	chr1	15000000
-gene2	sample2	chr2	30000000
-gene3	sample3	chr3	45000000
