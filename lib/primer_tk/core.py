@@ -10,6 +10,151 @@ from primer_tk.mp_class import create_df
 import primer_tk.primer_cross_hyb as pch
 from primer_tk import primer_tabix as pt
 
+def iterator_sv(args):
+    """ Use an input regions file with SV positions to pull
+        down flanking sequence on both sides of SV to generate
+        primers upstream and downstream of the SV.
+
+    Args:
+        args (Namespace): Argparse results.
+
+    Returns: None
+    """
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+
+    args = get_args_sv()
+    # 1) create genome tuple from provided reference
+    genome = genome_iterator(args.ref_genome)
+    # 2) create dataframe from input regions file
+    small_regions = file_extension(args.regions_file)
+    # 3) ensure proper proper number of columns in dataframe
+    assert len(list(small_regions)) == 5, "DataFrame contains more/less than 5 columns...\
+                                           Improper format."
+    # 4) format dataframe "chr" column to match reference genome
+    small_regions = match_chr_to_genome(small_regions, genome)
+    # 5) generate flanking regions fasta based on position in input file
+    flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
+    if args.sv == 'deletion':
+        flank_data = flanking_regions_fasta_deletion(genome, small_regions, args.flanking_region_size)
+        primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
+        for head, seq in flank_data:
+            flanking.write(">"+head+'\n'+seq+'\n')
+            # 6) generate primer3 input file
+            primer3_in.write("SEQUENCE_ID="+head+'\n'
+                             +"SEQUENCE_TEMPLATE="+seq+'\n'
+                             +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
+                             +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
+                             +"PRIMER_TASK=pick_detection_primers"+'\n'
+                             +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
+                             +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
+                             +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
+                             +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
+                             +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
+                             +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
+                             +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
+                             +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
+                             +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
+                             +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
+                             +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
+                             +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
+                             +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
+                             +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
+                             +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
+                             +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
+                             +"PRIMER_SALT_DIVALENT=1.5"+'\n'
+                             +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
+                             +"PRIMER_DNTP_CONC=0.6"+'\n' # assume no dntps are present when hybridizing
+                             +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
+                             +"PRIMER_DNA_CONC=50.0"+'\n'
+                             +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
+                             +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
+                             +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
+                             +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
+                             +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
+                             +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
+                             +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
+                             +"PRIMER_MAX_POLY_X=3"+'\n'
+                             +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
+                             +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
+                             +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
+                             +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
+                             +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
+                             +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
+                             +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
+                             +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
+                             +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
+                             +"PRIMER_NUM_RETURN=5"+'\n'
+                             +"P3_FILE_FLAG=1"+'\n'
+                             +"PRIMER_EXPLAIN_FLAG=1"+'\n'
+                             +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
+                             +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
+                             +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
+                             +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
+                             +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
+                             +"="+'\n')
+    elif args.sv == 'inversion':
+        flank_data = flanking_regions_fasta_inversion(genome, small_regions, args.flanking_region_size)
+        primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
+        for head, seq in flank_data:
+            flanking.write(">"+head+'\n'+seq+'\n')
+            # 6) generate primer3 input file
+            primer3_in.write("SEQUENCE_ID="+head+'\n'
+                             +"SEQUENCE_TEMPLATE="+seq+'\n'
+                             +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
+                             +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
+                             +"PRIMER_TASK=pick_detection_primers"+'\n'
+                             +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
+                             +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
+                             +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
+                             +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
+                             +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
+                             +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
+                             +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
+                             +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
+                             +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
+                             +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
+                             +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
+                             +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
+                             +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
+                             +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
+                             +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
+                             +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
+                             +"PRIMER_SALT_DIVALENT=1.5"+'\n'
+                             +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
+                             +"PRIMER_DNTP_CONC=0.6"+'\n' # assume no dntps are present when hybridizing
+                             +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
+                             +"PRIMER_DNA_CONC=50.0"+'\n'
+                             +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
+                             +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
+                             +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
+                             +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
+                             +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
+                             +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
+                             +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
+                             +"PRIMER_MAX_POLY_X=3"+'\n'
+                             +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
+                             +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
+                             +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
+                             +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
+                             +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
+                             +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
+                             +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
+                             +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
+                             +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
+                             +"PRIMER_NUM_RETURN=5"+'\n'
+                             +"P3_FILE_FLAG=1"+'\n'
+                             +"PRIMER_EXPLAIN_FLAG=1"+'\n'
+                             +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
+                             +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
+                             +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
+                             +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
+                             +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
+                             +"="+'\n')
+    flanking.close()
+    primer3_in.close()
+
+
 def iterator(args):
     """
     Use an input regions file with specific region of interest\
@@ -172,6 +317,25 @@ def pre(args):
     else:
         print("Please select pcr setup")
 
+def pre_sv(args):
+    """
+    Function for all steps leading up to PCR.
+    """
+    # 1) Initialize primer lists by rank for each sample
+    prim_list_0 = MissingPrimers(args.dump, 0).samp_primer_info
+    prim_list_1 = MissingPrimers(args.dump, 1).samp_primer_info
+    prim_list_2 = MissingPrimers(args.dump, 2).samp_primer_info
+    prim_list_3 = MissingPrimers(args.dump, 3).samp_primer_info
+    prim_list_4 = MissingPrimers(args.dump, 4).samp_primer_info
+    # 2) Generate the output df
+    primer_df = create_df([prim_list_0, prim_list_1, prim_list_2,
+                           prim_list_3, prim_list_4])
+    # 3) Generate csv output
+    primer_df = primer_df.loc[~(primer_df['Primer Left Seq'] == 'NA')]
+    primer_df.to_csv(args.outfile, index=False)
+    # 4) create standard pcr input
+    sps.standard_pcr(primer_df)
+
 def post(args):
     """
     Generates pcr analysis dataframes and applies primer filtering based on
@@ -211,6 +375,25 @@ def post(args):
     plate_forward_primers, plate_reverse_primers = ap.to_order_plate(top_ranked_df)
     plate_forward_primers.to_csv('plate_forward_primers.csv', index=False)
     plate_reverse_primers.to_csv('plate_reverse_primers.csv', index=False)
+
+def post_sv(args):
+    """
+    Generates pcr analysis dataframes and applies primer filtering based on
+    off-target amplification. Then compares good primers to initial primer
+    list to find which primer pair was generated and top ranking.
+    Finally, produces easy to use IDT order sheet in plate format (standard PCR only).
+    """
+    # 2) Generate seqs and headers lists
+    seqs, headers = ap.fasta_parser(args.flank_file)
+    # 3) Calculate GC of each PCR product and store in list
+    positions_to_compare = ap.amp_header_region(args.total_primers)
+    sliced_seqs = ap.get_gc_region(seqs, headers, positions_to_compare)
+    gc_calc = ap.calc_gc(sliced_seqs)
+    merged_df = ap.merge_dfs(gc_calc, args.total_primers, seqs)
+    merged_df.to_csv('total_list_gc.csv', index=False)
+    merged_df.drop_duplicates('Sequence ID', keep='first', inplace=True)
+    merged_df.to_csv('top_ranked_final_primers.csv', index=False)
+
 
 def tabix(args):
     """

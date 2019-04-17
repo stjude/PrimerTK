@@ -2,3 +2,4 @@
 *.cwl~
 __pycache__
 *.pyc
+.coverage
