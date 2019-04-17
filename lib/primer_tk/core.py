@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """ Core modules """
 
-from primer_tk import genome_iterator
+import time
+from pysam import VariantFile
+from primer_tk import genome_iterator as gi
 from primer_tk import analyze_pcr_output as ap
 from primer_tk.mp_class import MissingPrimers
+from primer_tk.mp_class import create_df
+import primer_tk.primer_cross_hyb as pch
+from primer_tk import primer_tabix as pt
 
 def iterator_sv(args):
     """ Use an input regions file with SV positions to pull
@@ -151,8 +156,9 @@ def iterator_sv(args):
 
 
 def iterator(args):
-    """ Use an input regions file with specific region of interest\
-        to design primers around, then run primer3.
+    """
+    Use an input regions file with specific region of interest\
+    to design primers around, then run primer3.
 
     Args:
         args (Namespace): Argparse object or None.
@@ -163,17 +169,17 @@ def iterator(args):
     # dedicated string of time for filename output.
     timestr = time.strftime("%Y%m%d-%H%M%S")
     # 1) create genome tuple from provided reference
-    genome = genome_iterator(args.ref_genome)
+    genome = gi.genome_iterator(args.ref_genome)
     # 2) create dataframe from input regions file
-    small_regions = file_extension(args.regions_file)
+    small_regions = gi.file_extension(args.regions_file)
     # 3) ensure proper proper number of columns in dataframe
     assert len(list(small_regions)) == 4, "DataFrame contains more than 4 columns...\
                                            Improper format."
     # 4) format dataframe "chr" column to match reference genome
-    small_regions = match_chr_to_genome(small_regions, genome)
+    small_regions = gi.match_chr_to_genome(small_regions, genome)
     # 5) generate flanking regions fasta based on position in input file
     flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
-    flank_data = create_flanking_regions_fasta(genome, small_regions, args.flanking_region_size)
+    flank_data = gi.create_flanking_regions_fasta(genome, small_regions, args.flanking_region_size)
     primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
     for head, seq in flank_data:
         flanking.write(">"+head+'\n'+seq+'\n')
@@ -389,3 +395,37 @@ def post_sv(args):
     merged_df.to_csv('top_ranked_final_primers.csv', index=False)
 
 
+def tabix(args):
+    """
+    Annotates primers with SNP information.
+    """
+    vcf_in = VariantFile(args.vcf)
+    p_info = pt.create_tabix_df(args.p_info)
+    p_left = pt.primer_range_left(p_info["Sequence ID"],
+                                  p_info["Primer Rank"],
+                                  p_info["Chromosome"],
+                                  p_info["Primer Left Seq"],
+                                  p_info["Position1"])
+    p_right = pt.primer_range_right(p_info["Sequence ID"],
+                                    p_info["Primer Rank"],
+                                    p_info["Chromosome"],
+                                    p_info["Primer Right Seq"],
+                                    p_info["Position2"])
+    pn_left = pt.match_pinfo_to_vcf(p_left, vcf_in)
+    pn_right = pt.match_pinfo_to_vcf(p_right, vcf_in)
+    left_snps = pt.tabix_fetch(pn_left["Sequence ID"],
+                               pn_left["Primer Rank"],
+                               pn_left["Chromosome"],
+                               pn_left["Position1"],
+                               pn_left["Position2"],
+                               vcf_in)
+    right_snps = pt.tabix_fetch(pn_right["Sequence ID"],
+                                pn_right["Primer Rank"],
+                                pn_right["Chromosome"],
+                                pn_right["Position1"],
+                                pn_right["Position2"],
+                                vcf_in)
+    left_df = pt.tabix_results_to_df(left_snps, "L", "Left SNP Count")
+    right_df = pt.tabix_results_to_df(right_snps, "R", "Right SNP Count")
+    merged_df = pt.merge_left_right(left_df, right_df, p_info)
+    merged_df.to_csv(args.output, index=False)

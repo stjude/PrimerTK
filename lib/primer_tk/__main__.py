@@ -32,6 +32,7 @@ def get_args(argv):
     primer_cross_hyb.add_pre_sv_subparser(subparser)
     analyze_pcr_output.add_post_subparser(subparser)
     analyze_pcr_output_sv.add_post_subparser(subparser)
+    primer_tabix.add_tabix_subparser(subparser)
 
     args = parser.parse_args(argv)
 
@@ -54,6 +55,8 @@ def main():
         core.pre_sv(args)
     elif action == "post":
         core.post(args)
+    elif action =="tabix":
+        core.tabix(args)
 
 
 main()
