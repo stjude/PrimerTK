@@ -5,25 +5,22 @@ class: CommandLineTool
 id: "post pcr analysis"
 
 baseCommand: python3.6
-
+arguments:
+ - valueFrom: primer_tk
+   position: 1
+   prefix: -m
+ - valueFrom: post
+   position: 2
 inputs:
-  post_pcr:
-    type: File
-    inputBinding:
-      position: 1
-    default:
-      class: File
-      location: ../../../src/main_post_pcr.py
-
   pcr_output:
     type: File
     inputBinding:
-      position: 2
+      position: 3
       prefix: -i
   total_primers:
     type: File
     inputBinding:
-      position: 3
+      position: 4
       prefix: -tp
 
 outputs:

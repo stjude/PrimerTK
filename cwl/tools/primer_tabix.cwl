@@ -5,30 +5,27 @@ class: CommandLineTool
 id: "tags all primers with SNP annotations"
 
 baseCommand: python3.6
-
+arguments:
+ - valueFrom: primer_tk
+   position: 1
+   prefix: -m
+ - valueFrom: tabix
+   position: 2
 inputs:
-  primer_tabix:
-    type: File
-    inputBinding:
-      position: 1
-    default:
-      class: File
-      location: ../../../src/primer_tabix.py
-
   vcf_in:
     type: File
     inputBinding:
-      position: 2
+      position: 3
       prefix: -vcf
   primer_pipeline_output:
     type: File
     inputBinding:
-      position: 3
+      position: 4
       prefix: -in
   outfile_snp:
     type: string
     inputBinding:
-      position: 4
+      position: 5
       prefix: -o
 
 outputs:

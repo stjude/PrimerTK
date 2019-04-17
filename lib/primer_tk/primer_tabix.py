@@ -8,29 +8,29 @@ Dependencies required to run program.
     - pysam==0.15.2
 """
 
+import sys
 import argparse
 import pandas as pd
 from pysam import VariantFile
 
-def get_args_snps():
+def add_tabix_subparser(subparser):
     """
     Get commandline arguments
-    Args: None
+    Args:
+        subparser (?): Subparser object.
     Returns:
-    args (Namespace): the parsed arguments.
+        args (Namespace): the parsed arguments.
     """
-    parser = argparse.ArgumentParser(description='Command Line arguments\
-                                                  for snp detection in primers.')
+    parser = subparser.add_parser("tabix", help="Tabix subparser")
     parser.add_argument("-vcf", "--variant-call-file", dest="vcf",
                         help="Tabix indexed VCF.")
     parser.add_argument("-in", "--primer-input-file", dest="p_info",
                         help="The output of the primer pipeline.")
     parser.add_argument("-o", "--output", dest="output",
                         help="The name of the output file")
-    args = parser.parse_args()
-    return args
+    return parser
 
-def create_df(primer_pipeline_output):
+def create_tabix_df(primer_pipeline_output):
     """
     Takes output of primer pipeline and generates dataframe.
 
@@ -161,10 +161,15 @@ def tabix_results_to_df(tabix_list, which_primer, column_name):
         tabix_frame (pd.DataFrame): list organized into dataframe
     """
     tabix_frame = pd.DataFrame(tabix_list)
+    if len(tabix_frame) == 0:
+        sys.exit("There are no SNPs in any of your primers, WOW!")
+    else:
+        pass
     tabix_frame.columns = ["Sequence ID", "Primer Rank",
                            "Chromosome", "SNPPosition", "rs_id",
                            "GeneInfo", "CommonAlleleFreq", "TopMedFreq"]
 
+    print(tabix_frame)
     tabix_frame["GeneInfo"] = tabix_frame["GeneInfo"]\
         .apply(lambda x: "NA" if len(x) == 0 else x[0].split("=")[1])
     tabix_frame["CommonAlleleFreq"] = tabix_frame["CommonAlleleFreq"]\
@@ -201,43 +206,6 @@ def merge_left_right(left_df, right_df, total):
                                .merge(right_df, on=['Sequence ID', 'Primer Rank'],
                                       how='left')
     return merged_tabix_df
-
-def main():
-    """
-    One func to rule them all!
-    """
-#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
-    args = get_args_snps()
-    vcf_in = VariantFile(args.vcf)
-    p_info = create_df(args.p_info)
-    p_left = primer_range_left(p_info["Sequence ID"],
-                               p_info["Primer Rank"],
-                               p_info["Chromosome"],
-                               p_info["Primer Left Seq"],
-                               p_info["Position1"])
-    p_right = primer_range_right(p_info["Sequence ID"],
-                                 p_info["Primer Rank"],
-                                 p_info["Chromosome"],
-                                 p_info["Primer Right Seq"],
-                                 p_info["Position2"])
-    pn_left = match_pinfo_to_vcf(p_left, vcf_in)
-    pn_right = match_pinfo_to_vcf(p_right, vcf_in)
-    left_snps = tabix_fetch(pn_left["Sequence ID"],
-                            pn_left["Primer Rank"],
-                            pn_left["Chromosome"],
-                            pn_left["Position1"],
-                            pn_left["Position2"],
-                            vcf_in)
-    right_snps = tabix_fetch(pn_right["Sequence ID"],
-                             pn_right["Primer Rank"],
-                             pn_right["Chromosome"],
-                             pn_right["Position1"],
-                             pn_right["Position2"],
-                             vcf_in)
-    left_df = tabix_results_to_df(left_snps, "L", "Left SNP Count")
-    right_df = tabix_results_to_df(right_snps, "R", "Right SNP Count")
-    merged_df = merge_left_right(left_df, right_df, p_info)
-    merged_df.to_csv(args.output, index=False)
 
 if __name__ == "__main__":
     main()

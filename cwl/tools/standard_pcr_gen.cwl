@@ -5,38 +5,36 @@ class: CommandLineTool
 id: "main pre pcr setup"
 
 baseCommand: python3.6
+arguments:
+ - valueFrom: primer_tk
+   position: 1
+   prefix: -m
+ - valueFrom: pre
+   position: 2
 
 inputs:
-  main_pre_pcr:
-    type: File
-    inputBinding:
-      position: 1
-    default:
-      class: File
-      location: ../../../src/main_pre_pcr.py
-
   primer_dump:
     type: File
     default: primer_dump.txt
     inputBinding:
-      position: 2
+      position: 3
       prefix: -d
   outfile:
     type: string
     default: 'total_list.csv'
     inputBinding:
-      position: 3
+      position: 4
       prefix: -o
   percent_alignment:
     type: int
     default: 60
     inputBinding:
-      position: 4
+      position: 5
       prefix: -pa
   pcr:
     type: string    
     inputBinding:
-      position: 5
+      position: 6
       prefix: -pcr
 
 outputs:
