@@ -44,23 +44,13 @@ def add_pre_sv_subparser(subparser):
 
     Returns: None
     """
-    parser = subparser.add_parser("pre_sv", description='Command Line argument for total primer\
-                                                  input file to check if primers have a degree\
-                                                  of complementarity with each other as defined\
-                                                  by the user. Default is 60% (fairly strict).')
+    parser = subparser.add_parser("pre_sv", description='Setup primer pairs for pseudo pcr.')
 
     parser.add_argument("-d", "--primer3_dump", dest="dump", required=True,
                         help="Primer3 stdout passed into a 'dump' file to be used as input")
 
     parser.add_argument("-o", "--outfile_name", dest="outfile", required=True,
                         help="The output filename for all primer information.")
-    parser.add_argument("-pa", "--percent_alignment", dest="percent_alignment",
-                        default="60", help="Percent match between 2 primers for pair to be\
-                                            discarded. EX: primer_len = 22, percent_aln = 60\
-                                            dimer_len = (60/100) * 22 = 13.2 -> 13.")
-    parser.add_argument("-pcr", "--pcr_type", dest="pcr", required=True,
-                        choices=['standard', 'multiplex'],
-                        help="perform standard or multiplex pcr on given inputs.")
 
 
 def get_fprimer_percent_aln(fprimer, percent_alignment):
@@ -156,7 +146,7 @@ def all_vs_all_pcr(df_boolean):
     Creates all vs all pcr input to check for off target PCR amplification.
     This function assumes you used the output created from primer_cross_hyb.py
     Args:
-        input_file (file): no_dimer_df.csv generated from previous step in program
+        df_boolean (pd.DataFrame): dataframe with removed cross hybridizing primers
     Returns:
         nothing: writes a file output
     """
@@ -181,18 +171,17 @@ def all_vs_all_pcr(df_boolean):
 
     all_vs_all.close()
 
-def standard_pcr(df_boolean):
+def standard_pcr(primer_df):
     """
     Creates standard PCR input file (one primer with one other) to run in silico PCR.
     Args:
-        input_file (file): no_dimer_df.csv generated from previous step in program
+        primer_df (pd.DataFrame): dataframe with primer info
     Returns:
         nothing: writes a file output
     """
-    no_dimer_df = df_boolean
     standard = open('standard_pcr.txt', 'w')
-    for seqid, primer_left, primer_right in zip(no_dimer_df['Sequence ID'],
-                                                no_dimer_df['Primer Left Seq'],
-                                                no_dimer_df['Primer Right Seq']):
+    for seqid, primer_left, primer_right in zip(primer_df['Sequence ID'],
+                                                primer_df['Primer Left Seq'],
+                                                primer_df['Primer Right Seq']):
         standard.write(str(seqid) + '\t' + str(primer_left) + '\t' + str(primer_right) + '\n')
     standard.close()

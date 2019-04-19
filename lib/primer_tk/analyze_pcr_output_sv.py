@@ -11,7 +11,7 @@ Dependencies required to run program:
 import sys
 import argparse
 import pandas as pd
-import sequence_info as seqinf
+from primer_tk import sequence_info as seqinf
 
 def add_post_subparser(subparser):
     """ Add subparser for postprocessing sv step.

@@ -4,7 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "primer3 input file generator"
 
-baseCommand: [python3.6]
+baseCommand: python3.6
 arguments:
  - valueFrom: primer_tk
    position: 1
