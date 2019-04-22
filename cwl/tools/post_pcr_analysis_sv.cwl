@@ -4,24 +4,24 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "gets specific region GC (no amp)"
 
-inputs:
-  main_post_pcr:
-    type: File
-    inputBinding:
-      position: 1
-    default:
-      class: File
-      location: ../../src/main_post_pcr.py
+baseCommand: python3.6
+arguments:
+ - valueFrom: primer_tk
+   position: 1
+   prefix: -m
+ - valueFrom: post_sv
+   position: 2
 
+inputs:
   flank_file:
     type: File
     inputBinding:
-      position: 2
+      position: 3
       prefix: -f
   total_primers:
     type: File
     inputBinding:
-      position: 3
+      position: 4
       prefix: -tp
 
 outputs:

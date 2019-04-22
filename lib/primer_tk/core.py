@@ -5,10 +5,15 @@ import time
 from pysam import VariantFile
 from primer_tk import genome_iterator as gi
 from primer_tk import analyze_pcr_output as ap
-from primer_tk.mp_class import MissingPrimers
-from primer_tk.mp_class import create_df
+from primer_tk import analyze_pcr_output_sv as apv
+from primer_tk.mp_class import MissingPrimers as mp
+from primer_tk.mp_class import create_df as cd
+from primer_tk.mp_class_sv import MissingPrimers as mpv
+from primer_tk.mp_class_sv import create_df as cdv
 import primer_tk.primer_cross_hyb as pch
 from primer_tk import primer_tabix as pt
+from primer_tk import genome_iterator_sv as giv
+
 
 def iterator_sv(args):
     """ Use an input regions file with SV positions to pull
@@ -23,20 +28,18 @@ def iterator_sv(args):
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
 
-    args = get_args_sv()
-    # 1) create genome tuple from provided reference
-    genome = genome_iterator(args.ref_genome)
+    genome = giv.genome_iterator(args.ref_genome)
     # 2) create dataframe from input regions file
-    small_regions = file_extension(args.regions_file)
+    small_regions = giv.file_extension(args.regions_file)
     # 3) ensure proper proper number of columns in dataframe
     assert len(list(small_regions)) == 5, "DataFrame contains more/less than 5 columns...\
                                            Improper format."
     # 4) format dataframe "chr" column to match reference genome
-    small_regions = match_chr_to_genome(small_regions, genome)
+    small_regions = giv.match_chr_to_genome(small_regions, genome)
     # 5) generate flanking regions fasta based on position in input file
     flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
     if args.sv == 'deletion':
-        flank_data = flanking_regions_fasta_deletion(genome, small_regions, args.flanking_region_size)
+        flank_data = giv.flanking_regions_fasta_deletion(genome, small_regions, args.flanking_region_size)
         primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
         for head, seq in flank_data:
             flanking.write(">"+head+'\n'+seq+'\n')
@@ -94,7 +97,7 @@ def iterator_sv(args):
                              +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
                              +"="+'\n')
     elif args.sv == 'inversion':
-        flank_data = flanking_regions_fasta_inversion(genome, small_regions, args.flanking_region_size)
+        flank_data = giv.flanking_regions_fasta_inversion(genome, small_regions, args.flanking_region_size)
         primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
         for head, seq in flank_data:
             flanking.write(">"+head+'\n'+seq+'\n')
@@ -243,14 +246,14 @@ def pre(args):
     """ Function for all steps leading up to PCR. """
     # 1) Initialize primer lists by rank for each sample
     print(args.dump)
-    prim_list_0 = MissingPrimers(args.dump, 0).samp_primer_info
-    prim_list_1 = MissingPrimers(args.dump, 1).samp_primer_info
-    prim_list_2 = MissingPrimers(args.dump, 2).samp_primer_info
-    prim_list_3 = MissingPrimers(args.dump, 3).samp_primer_info
-    prim_list_4 = MissingPrimers(args.dump, 4).samp_primer_info
+    prim_list_0 = mp(args.dump, 0).samp_primer_info
+    prim_list_1 = mp(args.dump, 1).samp_primer_info
+    prim_list_2 = mp(args.dump, 2).samp_primer_info
+    prim_list_3 = mp(args.dump, 3).samp_primer_info
+    prim_list_4 = mp(args.dump, 4).samp_primer_info
     # 2) Generate the output df
-    primer_df = create_df([prim_list_0, prim_list_1, prim_list_2,
-                           prim_list_3, prim_list_4])
+    primer_df = cd([prim_list_0, prim_list_1, prim_list_2,
+                    prim_list_3, prim_list_4])
     # 3) Generate csv output
     primer_df = primer_df.loc[~(primer_df['Primer Left Seq'] == 'NA')]
     primer_df.to_csv(args.outfile, index=False)
@@ -322,19 +325,19 @@ def pre_sv(args):
     Function for all steps leading up to PCR.
     """
     # 1) Initialize primer lists by rank for each sample
-    prim_list_0 = MissingPrimers(args.dump, 0).samp_primer_info
-    prim_list_1 = MissingPrimers(args.dump, 1).samp_primer_info
-    prim_list_2 = MissingPrimers(args.dump, 2).samp_primer_info
-    prim_list_3 = MissingPrimers(args.dump, 3).samp_primer_info
-    prim_list_4 = MissingPrimers(args.dump, 4).samp_primer_info
+    prim_list_0 = mpv(args.dump, 0).samp_primer_info
+    prim_list_1 = mpv(args.dump, 1).samp_primer_info
+    prim_list_2 = mpv(args.dump, 2).samp_primer_info
+    prim_list_3 = mpv(args.dump, 3).samp_primer_info
+    prim_list_4 = mpv(args.dump, 4).samp_primer_info
     # 2) Generate the output df
-    primer_df = create_df([prim_list_0, prim_list_1, prim_list_2,
-                           prim_list_3, prim_list_4])
+    primer_df = cdv([prim_list_0, prim_list_1, prim_list_2,
+                     prim_list_3, prim_list_4])
     # 3) Generate csv output
     primer_df = primer_df.loc[~(primer_df['Primer Left Seq'] == 'NA')]
     primer_df.to_csv(args.outfile, index=False)
     # 4) create standard pcr input
-    sps.standard_pcr(primer_df)
+    pch.standard_pcr(primer_df)
 
 def post(args):
     """
@@ -384,12 +387,12 @@ def post_sv(args):
     Finally, produces easy to use IDT order sheet in plate format (standard PCR only).
     """
     # 2) Generate seqs and headers lists
-    seqs, headers = ap.fasta_parser(args.flank_file)
+    seqs, headers = apv.fasta_parser(args.flank_file)
     # 3) Calculate GC of each PCR product and store in list
-    positions_to_compare = ap.amp_header_region(args.total_primers)
-    sliced_seqs = ap.get_gc_region(seqs, headers, positions_to_compare)
-    gc_calc = ap.calc_gc(sliced_seqs)
-    merged_df = ap.merge_dfs(gc_calc, args.total_primers, seqs)
+    positions_to_compare = apv.amp_header_region(args.total_primers)
+    sliced_seqs = apv.get_gc_region(seqs, headers, positions_to_compare)
+    gc_calc = apv.calc_gc(sliced_seqs)
+    merged_df = apv.merge_dfs(gc_calc, args.total_primers, seqs)
     merged_df.to_csv('total_list_gc.csv', index=False)
     merged_df.drop_duplicates('Sequence ID', keep='first', inplace=True)
     merged_df.to_csv('top_ranked_final_primers.csv', index=False)

@@ -77,13 +77,13 @@ steps:
       output: output
     out: [primer_dump_file]
   pcr_setup:
-    run: ./tools/pcr_setup.cwl
+    run: ./tools/pcr_gen_sv.cwl
     in:
       primer_dump: primer3/primer_dump_file
       outfile: outfile
-    out: [total_primers_list, pcr_standard_output]
+    out: [total_primers_list, pcr_input]
   pcr_sim:
-    run: ./tools/pcr_sim.cwl
+    run: ./tools/post_pcr_analysis_sv.cwl
     in:
       flank_file: genome_iterator_sv/flanking_regions_file
       total_primers: pcr_setup/total_primers_list

@@ -15,7 +15,7 @@ import argparse
 
 from Bio import SeqIO
 import pandas as pd
-import sequence_info as seqinf
+from primer_tk import sequence_info as seqinf
 
 def add_iterator_subparser(subparser):
     """ Get commandline arguments

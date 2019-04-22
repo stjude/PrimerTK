@@ -9,9 +9,8 @@ arguments:
  - valueFrom: primer_tk
    position: 1
    prefix: -m
- - valueFrom: pre
+ - valueFrom: pre_sv
    position: 2
-
 inputs:
   primer_dump:
     type: File
@@ -21,16 +20,18 @@ inputs:
       prefix: -d
   outfile:
     type: string
-    default: 'total_list.csv'
+    default: 'total_list_sv.csv'
     inputBinding:
       position: 4
       prefix: -o
+
 outputs:
   total_primers_list:
     type: File
     outputBinding:
-      glob: 'total_list.csv'
-  pcr_standard_output:
+      glob: '*.csv'
+  pcr_input:
     type: File
     outputBinding:
       glob: 'standard_pcr.txt'
+

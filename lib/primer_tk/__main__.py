@@ -7,6 +7,7 @@ import argparse
 from primer_tk import genome_iterator, genome_iterator_sv, \
     primer_cross_hyb, \
     analyze_pcr_output, analyze_pcr_output_sv, \
+    primer_tabix, \
     __version__
 
 from primer_tk import core
@@ -55,6 +56,8 @@ def main():
         core.pre_sv(args)
     elif action == "post":
         core.post(args)
+    elif action == "post_sv":
+        core.post_sv(args)
     elif action =="tabix":
         core.tabix(args)
 
