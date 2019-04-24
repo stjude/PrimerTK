@@ -25,7 +25,7 @@ def add_iterator_subparser(subparser):
     Returns: None
     """
 
-    parser = subparser.add_parser("iterator_sv", description="iterator_sv subparser")
+    parser = subparser.add_parser("iterator_sv", help="iterator_sv subparser")
 
     parser.add_argument("-ref", "--ref_genome", required=True,
                         help="Reference Genome File to design primers around")

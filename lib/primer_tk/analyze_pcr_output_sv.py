@@ -21,7 +21,7 @@ def add_post_subparser(subparser):
 
     Returns: None
     """
-    parser = subparser.add_parser("post_sv", description='Parses info from pcr_output')
+    parser = subparser.add_parser("post_sv", help='Parses info from pcr_output')
     parser.add_argument("-f", "--flank_file", dest="flank_file",
                         help="use flanking_regions file from output of genome_iterator_sv.py")
     parser.add_argument("-tp", "--total_primers", dest="total_primers",

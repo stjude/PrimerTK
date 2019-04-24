@@ -23,7 +23,7 @@ def add_post_subparser(subparser):
 
     Returns: None
     """
-    parser = subparser.add_parser("post", description='Parses info from pcr_output')
+    parser = subparser.add_parser("post", help='Parses info from pcr_output')
     parser.add_argument("-i", "--pcr_output",
                         dest="pcrfile", default="pcr_output.txt",
                         help="use output of isPCR")

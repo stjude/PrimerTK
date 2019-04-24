@@ -18,10 +18,11 @@ def add_pre_subparser(subparser):
 
     Returns: None
     """
-    parser = subparser.add_parser("pre", description='Command Line argument for total primer\
-                                                  input file to check if primers have a degree\
-                                                  of complementarity with each other as defined\
-                                                  by the user. Default is 60% (fairly strict).')
+    parser = subparser.add_parser("pre", help="Preprocessing for snv/indel",
+                                  description="Command Line argument for total primer"
+                                              "input file to check if primers have a degree"
+                                              "of complementarity with each other as defined"
+                                              "by the user. Default is 60% (fairly strict).")
 
     parser.add_argument("-d", "--primer3_dump", dest="dump", required=True,
                         help="Primer3 stdout passed into a 'dump' file to be used as input")
@@ -44,7 +45,7 @@ def add_pre_sv_subparser(subparser):
 
     Returns: None
     """
-    parser = subparser.add_parser("pre_sv", description='Setup primer pairs for pseudo pcr.')
+    parser = subparser.add_parser("pre_sv", help="Preprocessing for SV's")
 
     parser.add_argument("-d", "--primer3_dump", dest="dump", required=True,
                         help="Primer3 stdout passed into a 'dump' file to be used as input")
