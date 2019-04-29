@@ -1,0 +1,17 @@
+Metadata-Version: 1.2
+Name: primer-tk
+Version: 0.2.2
+Summary: A toolkit to design primers in multiplex pools and around SVs.
+Home-page: UNKNOWN
+Author: Dennis Kennetz
+Author-email: dennis.kennetz@stjude.org
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Biology/Genomics
+Classifier: Environment :: Console
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.5.*
