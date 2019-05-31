@@ -17,7 +17,7 @@ def add_post_subparser(subparser):
     """ Add subparser for postprocessing sv step.
 
     Args:
-        subparser (?): Subparser objeect.
+        subparser (?): Subparser object.
 
     Returns: None
     """
@@ -27,6 +27,10 @@ def add_post_subparser(subparser):
     parser.add_argument("-tp", "--total_primers", dest="total_primers",
                         help="the pre-PCR master primer file that\
                               contains all sample + primer info")
+    parser.add_argument("-all", "--all_final_primers", default="all_final_primers_sv.csv",
+                        help="all primers generated for targets")
+    parser.add_argument("-top", "--top_final_primers", default="top_final_primers_sv.csv",
+                        help="top primers generated for targets")
 
 def fasta_parser(pcrfile):
     """

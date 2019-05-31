@@ -25,7 +25,7 @@ class TestPrimerCrossHyb(unittest.TestCase):
         Setup for tests, need to generate df as all scripts in this operate
         on a dataframe. self.primer_df is called twice to drop NA.
         """
-        self.dump = "primer_dump.txt"
+        self.dump = "./data/primer_dump.txt"
         prim_list_0 = MissingPrimers(self.dump, 0).samp_primer_info
         prim_list_1 = MissingPrimers(self.dump, 1).samp_primer_info
         prim_list_2 = MissingPrimers(self.dump, 2).samp_primer_info

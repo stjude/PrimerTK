@@ -245,7 +245,6 @@ def iterator(args):
 def pre(args):
     """ Function for all steps leading up to PCR. """
     # 1) Initialize primer lists by rank for each sample
-    print(args.dump)
     prim_list_0 = mp(args.dump, 0).samp_primer_info
     prim_list_1 = mp(args.dump, 1).samp_primer_info
     prim_list_2 = mp(args.dump, 2).samp_primer_info
@@ -311,12 +310,12 @@ def pre(args):
                                    | primer_df['Dimers1_2R'] | primer_df['Dimers2_1R']\
                                    | primer_df['Dimers1_1R'] | primer_df['Dimers2_2R'] == True)])
     # 11) Write output to csv
-    df_bool.to_csv('no_dimer_df.csv', index=False)
+    df_bool.to_csv(args.no_dimer, index=False)
     # 12) create allvsall pcr, standard pcr, or both
     if args.pcr == 'multiplex':
-        pch.all_vs_all_pcr(df_bool)
+        pch.all_vs_all_pcr(df_bool, args.multiplex_pcr_file)
     elif args.pcr == 'standard':
-        pch.standard_pcr(primer_df_standard)
+        pch.standard_pcr(primer_df_standard, args.standard_pcr_file)
     else:
         print("Please select pcr setup")
 
@@ -337,7 +336,7 @@ def pre_sv(args):
     primer_df = primer_df.loc[~(primer_df['Primer Left Seq'] == 'NA')]
     primer_df.to_csv(args.outfile, index=False)
     # 4) create standard pcr input
-    pch.standard_pcr(primer_df)
+    pch.standard_pcr(primer_df, args.pcrfile)
 
 def post(args):
     """
@@ -365,19 +364,19 @@ def post(args):
     merged_list = ap.merge_info(chrom_list, pos_split, name_pos_list, no_chrom)
     all_pcr_df, good_primers_df, bad_primers_df = ap.generate_pcr_df(merged_list, gc_list)
     # 9) Output file generation
-    all_pcr_df.to_csv('pcr_product_info.csv', index=False)
+    all_pcr_df.to_csv(args.pcr_product_info, index=False)
     # 10) Merge good primers df with toal primers df
     merged_df = ap.merge_good_total(good_primers_df, args.total_primers)
     # 11) Keep only primers which match bw good and total primers
     filtered_df = ap.filter_merged(merged_df)
-    filtered_df.to_csv('all_final_primers.csv', index=False)
+    filtered_df.to_csv(args.all_primer_info, index=False)
     # 12) Output only top ranked final primers after filter
     top_ranked_df = ap.top_ranked_final_primers(filtered_df)
-    top_ranked_df.to_csv('top_final_primers.csv', index=False)
+    top_ranked_df.to_csv(args.top_final_primers, index=False)
     # 13) generate easy order plate (only for standard PCR atm)
     plate_forward_primers, plate_reverse_primers = ap.to_order_plate(top_ranked_df)
-    plate_forward_primers.to_csv('plate_forward_primers.csv', index=False)
-    plate_reverse_primers.to_csv('plate_reverse_primers.csv', index=False)
+    plate_forward_primers.to_csv(args.plate_forward_primers, index=False)
+    plate_reverse_primers.to_csv(args.plate_reverse_primers, index=False)
 
 def post_sv(args):
     """
@@ -393,9 +392,9 @@ def post_sv(args):
     sliced_seqs = apv.get_gc_region(seqs, headers, positions_to_compare)
     gc_calc = apv.calc_gc(sliced_seqs)
     merged_df = apv.merge_dfs(gc_calc, args.total_primers, seqs)
-    merged_df.to_csv('total_list_gc.csv', index=False)
+    merged_df.to_csv(args.all_final_primers, index=False)
     merged_df.drop_duplicates('Sequence ID', keep='first', inplace=True)
-    merged_df.to_csv('top_ranked_final_primers.csv', index=False)
+    merged_df.to_csv(args.top_final_primers, index=False)
 
 
 def tabix(args):

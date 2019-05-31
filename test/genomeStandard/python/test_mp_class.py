@@ -21,7 +21,7 @@ class TestMissingPrimers(unittest.TestCase):
     Subclass of unittest to test mp_class.py
     """
     def setUp(self):
-        self.mp = MissingPrimers("primer_dump.txt", 1)
+        self.mp = MissingPrimers("./data/primer_dump.txt", 1)
 
     def test_group_seqids(self):
         """
@@ -91,7 +91,7 @@ class TestMissingPrimers(unittest.TestCase):
         as input and generate an output df.
         """
         prim_list_1 = self.mp.samp_primer_info
-        prim_list_2 = MissingPrimers("primer_dump.txt", 2).samp_primer_info
+        prim_list_2 = MissingPrimers("./data/primer_dump.txt", 2).samp_primer_info
         primer_df = create_df([prim_list_1, prim_list_2])
         self.assertEqual(len(primer_df), 6)
 
