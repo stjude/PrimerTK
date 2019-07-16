@@ -1,0 +1,10 @@
+pcr_output:
+  class: File
+  path: ../../data/clt/pcr_output.fa
+total_primers:
+  class: File
+  path: ../../data/clt/total_multiplex_primers.csv
+pcr_product_info: pcr_product_info.csv
+all_good_primers: all_primers.csv
+top_primer_info: top_primers.csv
+plate_basename: plated_primers

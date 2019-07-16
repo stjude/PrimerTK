@@ -1,0 +1,4 @@
+output: primer_standard_dump.txt
+primer3_input_file:
+  class: File
+  path: ../../data/clt/primer3_input.standard.txt

@@ -9,8 +9,8 @@ Dependencies required to run program:
 A subset of functions used after PCR.
 """
 
-import sys
-import os
+#import sys
+#import os
 import argparse
 import pandas as pd
 from primer_tk import sequence_info as seqinf
@@ -37,10 +37,9 @@ def add_post_subparser(subparser):
                         help="all of the successful primers generated")
     parser.add_argument("-top", "--top_final_primers", default="top_final_primers.csv",
                         help="the top primers generated for each position")
-    parser.add_argument("-pf", "--plate_forward_primers", default="plate_forward_primers.csv",
-                        help="the forward top primers in plate format")
-    parser.add_argument("-pr", "--plate_reverse_primers", default="plate_reverse_primers.csv",
-                        help="the reverse reverse primers in plate format")
+    parser.add_argument("-plate", "--plate_basename", default="plated_primers",
+                        help="the basename of the primers in plate format ready to order.")
+
 
 def fasta_parser(pcrfile):
     """
@@ -54,8 +53,10 @@ def fasta_parser(pcrfile):
     """
     seqs = []
     headers = []
-    if not os.path.exists(pcrfile):
-        sys.exit("ERROR: pcr_file '%s' DNE"%(pcrfile))
+    # The exit for file DNE is parsed before the arguments are called, so the arguments are not printed
+    # if -h is not passed. This is not ideal so for now these are commented out.
+#    if not os.path.exists(pcrfile):
+#        sys.exit("ERROR: pcr_file '%s' DNE"%(pcrfile))
     with open(pcrfile) as pcr_file:
         sequence = ""
         header = None
@@ -100,7 +101,7 @@ def split_headers_list(headers):
     no_chrom = [item[1:] for item in split_headers]
     return split_headers, no_chrom
 
-def chr_split_list(split_headers):
+def chr_split_list(split_headers, sv='?'):
     """
     Gets chromosome info from split_headers.
     Args:
@@ -262,13 +263,15 @@ def to_order_plate(top_ranking_final_primers):
         for num in num_wells:
             well_and_nums.append(well+num)
 
+    # this is required because sometimes more than 96 primers are generated and the list is consumed.
+    big_well_nums = well_and_nums * 50
     filt_ranked_df = top_ranking_final_primers
     plate_order_sheet_f = pd.DataFrame(columns=['Sequence Name', 'Sequence'])
     plate_order_sheet_r = pd.DataFrame(columns=['Sequence Name', 'Sequence'])
     plate_order_sheet_f['Sequence Name'] = filt_ranked_df['Sequence ID']+'_F'
     plate_order_sheet_f['Sequence'] = filt_ranked_df['Primer Left Seq']
-    plate_order_sheet_f.insert(0, 'Well Position', well_and_nums[:len(plate_order_sheet_f['Sequence'])])
+    plate_order_sheet_f.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_f['Sequence'])])
     plate_order_sheet_r['Sequence Name'] = filt_ranked_df['Sequence ID']+'_R'
     plate_order_sheet_r['Sequence'] = filt_ranked_df['Primer Right Seq']
-    plate_order_sheet_r.insert(0, 'Well Position', well_and_nums[:len(plate_order_sheet_r['Sequence'])])
+    plate_order_sheet_r.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_r['Sequence'])])
     return plate_order_sheet_f, plate_order_sheet_r

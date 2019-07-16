@@ -1,0 +1,3 @@
+#This is a list of possible primer dimers based on the input complementarity.
+#Comparison of forward primers with all reverse primers...                       
+#Sequence ID 	 	 Complementarity Score

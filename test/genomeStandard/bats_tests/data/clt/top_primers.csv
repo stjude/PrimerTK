@@ -1,0 +1,2 @@
+Sequence ID,Primer Rank,Primer Left Seq,Primer Right Seq,Primer Left Len,Primer Right Len,Primer Left TM,Primer Right TM,Primer Left GC %,Primer Right GC %,Chromosome,Position1,Position2,PCR_Prod_Len,Product GC%,FwdPrimerPos,RvsPrimerPos
+sample3_gene3_1:1200__,0,GCAGAAACTCACGTCACGGT,CTGCCACTACACCTTGAGCA,20,20,60.875,59.965,55.0,55.0,1,1074,1381,308bp,64.93506493506493,1074-1094,1361-1381

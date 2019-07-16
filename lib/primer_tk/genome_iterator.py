@@ -29,8 +29,6 @@ def add_iterator_subparser(subparser):
 
     parser.add_argument("-ref", "--ref_genome", required=True,
                         help="Reference Genome File to design primers around")
-    parser.add_argument("--sv", help="Use SV specific logic",
-                        action="store_true")
     parser.add_argument("-in", "--regions_file", required=True,
                         help="File with regions to design primers around")
     parser.add_argument("-opt_size", "--primer_opt_size",

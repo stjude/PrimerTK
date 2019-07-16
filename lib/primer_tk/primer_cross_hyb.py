@@ -29,7 +29,7 @@ def add_pre_subparser(subparser):
 
     parser.add_argument("-o", "--outfile_name", dest="outfile", required=True,
                         help="The output filename for all primer information.")
-    parser.add_argument("-nd", "--no_dimer", default="no_dimer_df.csv", required=True,
+    parser.add_argument("-nd", "--no_dimer", default="no_dimer_df.csv",
                         help="The primers left after dimers removed.")
     parser.add_argument("-spcr", "--standard_pcr_file", default="standard_pcr.txt",
                         help="The file to be used for standard pcr input")

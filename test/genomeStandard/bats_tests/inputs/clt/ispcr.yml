@@ -1,0 +1,6 @@
+chromosome_fasta:
+  class: File
+  path: ../../data/clt/test.fa
+pcr_input:
+  class: File
+  path: ../../data/clt/multiplex_pcr_input.txt

@@ -1,0 +1,6 @@
+flank_file:
+  class: File
+  path: ../../data/sv/flanking_regions.deletion.fasta
+total_primers:
+  class: File
+  path: ../../data/sv/total_primers_deletion.csv

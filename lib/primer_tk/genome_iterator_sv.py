@@ -10,7 +10,6 @@ Dependencies:
 """
 
 import sys
-import time
 import argparse
 
 from Bio import SeqIO
@@ -69,16 +68,16 @@ def add_iterator_subparser(subparser):
                         dest="sequence_target", default="199,1",
                         help="default: 199,1, should be half of your flanking region size,\
                               so SNP/V will be included.")
-    parser.add_argument("-mp", "--mispriming", dest="mispriming",
+    parser.add_argument("-mp", "--mispriming", dest="mispriming", required=True,
                         help="full path to mispriming library for primer3\
                               (/home/dkennetz/testing_p3/primers/humrep.ref")
-    parser.add_argument("-tp", "--thermopath", dest="thermopath",
+    parser.add_argument("-tp", "--thermopath", dest="thermopath", required=True,
                         help="full path to thermo parameters for primer3 to use\
                               (/hpcf/apps/primer3/install/2.4.0/src/primer3_config/) install loc")
     parser.add_argument("-sv", "--sv-type", dest="sv",
-                        choices=['deletion', 'inversion'],
+                        choices=['deletion', 'inversion', 'insertion'], required=True,
                         help="currently supported SV primer generation: "
-                             "deletion and inversion.")
+                             "deletion, inversion, and insertion.")
 
 def genome_iterator(genome):
     """
@@ -125,6 +124,32 @@ def create_dataframe_csv(regions_file):
     regions_df = regions_df.astype({'Chr': str})
     return regions_df
 
+def create_dataframe_insertion_csv(regions_file):
+    """
+    Creates a pandas DataFrame from a regions file in comma separated form
+    and names the columns in the DF according to their values.
+
+    Args:
+        regions_file (file): Full path to -in input regions.csv.
+        This should have coordinate positions of interest to design primers around.
+        Note: the chromosome column can be of format chr1 or simply 1 (chr not necessary).
+        The file should contain no headers and should be structured as follows:
+
+        Gene1,Sample1,chrNorm1,posNorm1,posNorm2,chrIns2,posIns1,posIns2,strand
+        Gene2,Sample2,chrNorm2,posNorm1,posNorm2,chrIns3,posIns1,posIns2,strand
+        Gene3,Sample3,chrNorm3,posNorm1,posNorm2,chrIns4,posIns1,posIns2,strand
+        ...
+    Returns:
+        regions_df (pd.DataFrame): The infile parsed to pd.DataFrame object.
+    """
+
+    regions_df = pd.read_csv(regions_file, header=None)
+    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm1', 'PosNorm2',
+                          'ChrIns', 'PosIns1', 'PosIns2', 'Strand']
+    regions_df = regions_df.astype({'ChrNorm': str})
+    regions_df = regions_df.astype({'ChrIns': str})
+    return regions_df
+
 def create_dataframe_txt(regions_file):
     """
     Creates a pandas DataFrame from a regions file in a tab separated form
@@ -148,7 +173,32 @@ def create_dataframe_txt(regions_file):
     regions_df = regions_df.astype({'Chr': str})
     return regions_df
 
-def file_extension(infile):
+def create_dataframe_insertion_txt(regions_file):
+    """
+    Creates a pandas DataFrame from a regions file in a tab separated form
+    and uses the following column names in the DF according to their values.
+
+    Args:
+        regions_file (file): Full path to -in input regions.txt.
+        This should have coordinate positions of interest to design primers around.
+        Note: the chromosome column can be of format chr1 or simply 1 (chr not necessary).
+        The file should contain no headers and should be constructed as follows:
+
+        Gene1\tSample1\tchrNorm1\tposNorm1\tposNorm2\tchrIns2\tposIns1\tposIns2\tstrand
+        Gene2\tSample2\tchrNorm2\tposNorm1\tposNorm2\tchrIns3\tposIns1\tposIns2\tstrand
+        Gene3\tSample3\tchrNorm3\tposNorm1\tposNorm2\tchrIns4\tposIns1\tposIns2\tstrand
+        ...
+    Returns:
+        regions_df (pd.DataFrame): The infile parsed to pd.DataFrame object.
+    """
+    regions_df = pd.read_table(regions_file, header=None)
+    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm1', 'PosNorm2',
+                          'ChrIns', 'PosIns1', 'PosIns2', 'Strand']
+    regions_df = regions_df.astype({'ChrNorm': str})
+    regions_df = regions_df.astype({'ChrIns': str})
+    return regions_df
+
+def file_extension(infile, strvar):
     """
     Runs pd.read_ function to create dataframe corresponding
     to file extension, .txt and .csv accepted.
@@ -157,18 +207,23 @@ def file_extension(infile):
 
     Args:
         infile (file): Full path to -in input regions.txt.
+        strvar (string): the structural variant type
     Returns:
         small_regions (pd.DataFrame): The infile parsed to pd.DataFrame object
     """
-    if infile.lower().endswith('.txt'):
+    if infile.lower().endswith('.txt') and strvar in ('deletion', 'inversion'):
         small_regions = create_dataframe_txt(infile)
-    elif infile.lower().endswith('.csv'):
+    elif infile.lower().endswith('.csv') and strvar in ('deletion', 'inversion'):
         small_regions = create_dataframe_csv(infile)
+    elif infile.lower().endswith('.txt') and strvar == 'insertion':
+        small_regions = create_dataframe_insertion_txt(infile)
+    elif infile.lower().endswith('.csv') and strvar == 'insertion':
+        small_regions = create_dataframe_insertion_csv(infile)
     else:
-        sys.exit("Wrong File Format, should be .txt or .csv")
+        sys.exit("Wrong File Format, should be .txt (tab) or .csv (comma), or check sv type.")
     return small_regions
 
-def match_chr_to_genome(dataframe, genome):
+def match_chr_to_genome(dataframe, genome, strvar):
     """
     Used to match formatting between regionsFile input and genome for chromosome
     denotations. Some genomes contain the string "chr" and some do not.
@@ -180,16 +235,20 @@ def match_chr_to_genome(dataframe, genome):
     Returns:
         dataframe (pandas object): dataframe formatted to match genome annotation of chromosome.
     """
-    if dataframe['Chr'].str.contains("chr").any() and "chr" in str(genome[0][0]):
-        pass
-    elif dataframe['Chr'].str.contains("chr").any() and "chr" not in str(genome[0][0]):
-        dataframe['Chr'] = dataframe['Chr'].str.replace('chr', '')
-    elif not dataframe['Chr'].str.contains("chr").any() and "chr" not in str(genome[0][0]):
-        pass
-    elif not dataframe['Chr'].str.contains("chr").any() and "chr" in str(genome[0][0]):
-        dataframe['Chr'] = 'chr' + dataframe['Chr']
+    if strvar in ('deletion', 'inversion'):
+        if dataframe['Chr'].str.contains("chr").any() and "chr" not in str(genome[0][0]):
+            dataframe['Chr'] = dataframe['Chr'].str.replace('chr', '')
+        elif not dataframe['Chr'].str.contains("chr").any() and "chr" in str(genome[0][0]):
+            dataframe['Chr'] = 'chr' + dataframe['Chr']
+    elif strvar == 'insertion':
+        if dataframe['ChrNorm'].str.contains("chr").any() and "chr" not in str(genome[0][0]):
+            dataframe['ChrNorm'] = dataframe['ChrNorm'].str.replace('chr', '')
+            dataframe['ChrIns'] = dataframe['ChrIns'].str.replace('chr', '')
+        elif not dataframe['ChrNorm'].str.contains("chr").any() and "chr" in str(genome[0][0]):
+            dataframe['ChrNorm'] = 'chr' + dataframe['ChrNorm']
+            dataframe['ChrIns'] = 'chr' + dataframe['ChrIns']
     else:
-        print("look at pandas error")
+        sys.exit("Wrong SV type, please select an SV in help menu.")
     return dataframe
 
 def flanking_regions_fasta_deletion(genome, dataframe, flanking_region_size):
@@ -231,7 +290,7 @@ def flanking_regions_fasta_inversion(genome, dataframe, flanking_region_size):
     This is based on the chromosome and position of input file.
     Each Fasta record  will contain:
 
-    >Sample_Gene_chr:posStart-posStop
+    >Sample_Gene_chr:posStart-posStop_BP
     Seq of flanking region upstream of SV + seq of flanking region downstream of SV
 
     Args:
@@ -239,6 +298,8 @@ def flanking_regions_fasta_inversion(genome, dataframe, flanking_region_size):
         dataframe (pandas object): dataframe with sample info.
         flanking_region_size (int): length of sequence upstream and downstream of
         input coordinate position to pull as sequence to design primers around.
+    Returns:
+        output (list): header + seq
     """
     output = []
     for headers, seqs in genome:
@@ -250,15 +311,100 @@ def flanking_regions_fasta_inversion(genome, dataframe, flanking_region_size):
                 header = str(str(sample)+"_"+str(gene)+"_"+\
                                  str(chrom)+":"+str(start)+"-"+str(stop)+"__BP1")
                 flank_seq = seq[int(start)-int(flanking_region_size):int(start)+1]\
-                    + seqinf.Sequence(seq[int(stop):((int(stop)-int(flanking_region_size))+1):-1]).complement()
+                    + seqinf.\
+                    Sequence(seq[int(stop):((int(stop)-(int(flanking_region_size)+1))):-1])\
+                    .complement()
                 output.append((header, flank_seq))
         for gene, sample, chrom, start, stop in zip(dataframe.Gene, dataframe.Sample, dataframe.Chr,
                                                     dataframe.PosStart, dataframe.PosStop):
             if str(chrom) == chrm:
                 header = str(str(sample)+"_"+str(gene)+"_"+\
                                  str(chrom)+":"+str(start)+"-"+str(stop)+"__BP2")
-                flank_seq = seqinf.Sequence(seq[int(start)+int(flanking_region_size):int(start)+1:-1]).complement()\
+                flank_seq = seqinf.\
+                    Sequence(seq[int(start)+int(flanking_region_size):int(start)+1:-1])\
+                    .complement()\
                     + seq[int(stop):(int(stop)+int(flanking_region_size))]
                 output.append((header, flank_seq.upper()))
     return output
 
+def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
+    """
+    Makes batch processing possible, pulls down small region
+    of genome for which to design primers around and generates
+    flanking regions based on an inverted sequence.
+
+    This is based on the chromosome and position of input file.
+    Each Fasta record  will contain:
+
+    >Sample_Gene_chr:posNorm1-posNorm2_BP
+    Seq of flanking region upstream of SV + seq of inserted sequence based on strand
+
+    Args:
+        genome (list): genome list of tuples (header, seq)
+        dataframe (pandas object): dataframe with sample info.
+        flanking_region_size (int): length of sequence upstream dna downstream of
+        input coordinate position to pull as sequence to design primers around.
+    Returns:
+        output (list): (header + seq)
+    """
+    headersbp1 = []
+    seqsnormbp1 = []
+    seqsinsbp1 = []
+    headersbp2 = []
+    seqsnormbp2 = []
+    seqsinsbp2 = []
+    for headers, seqs in genome:
+        chrm = str(headers)
+        seq = str(seqs)
+        for gene, sample, chrn, startn, stopn in zip(dataframe.Gene, dataframe.Sample,
+                                                     dataframe.ChrNorm, dataframe.PosNorm1,
+                                                     dataframe.PosNorm2):
+            if str(chrn) == chrm:
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopn)+"__BP1")
+                flank_seq = seq[int(startn)-int(flanking_region_size):int(startn)]
+                seqsnormbp1.append(flank_seq)
+                headersbp1.append(header)
+
+        for chri, starti, stopi, strand in zip(dataframe.ChrIns, dataframe.PosIns1,
+                                               dataframe.PosIns2, dataframe.Strand):
+            if str(chri) == chrm and strand == '+':
+                flank_seq = seq[int(starti):int(starti)+int(flanking_region_size)]
+                seqsinsbp1.append(flank_seq)
+            elif str(chri) == chrm and strand == '-':
+                flank_seq = seqinf.\
+                    Sequence(seq[int(stopi):int(stopi)-(int(flanking_region_size)):-1])\
+                    .complement()
+                seqsinsbp1.append(flank_seq)
+
+        for gene, sample, chrn, startn, stopn in zip(dataframe.Gene, dataframe.Sample,
+                                                     dataframe.ChrNorm,
+                                                     dataframe.PosNorm1,
+                                                     dataframe.PosNorm2):
+            if str(chrn) == chrm:
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopn)+"__BP2")
+                flank_seq = seq[int(stopn):int(stopn)+int(flanking_region_size)]
+                seqsnormbp2.append(flank_seq)
+                headersbp2.append(header)
+
+        for chri, starti, stopi, strand in zip(dataframe.ChrIns, dataframe.PosIns1,
+                                               dataframe.PosIns2, dataframe.Strand):
+            if str(chri) == chrm and strand == '+':
+                flank_seq = seq[int(stopi):int(stopi)-(int(flanking_region_size)):-1]
+                seqsinsbp2.append(flank_seq)
+            elif str(chri) == chrm and strand == '-':
+                flank_seq = seqinf.\
+                    Sequence(seq[int(starti):int(starti)+(int(flanking_region_size))])\
+                    .complement()
+                seqsinsbp2.append(flank_seq)
+
+    output = []
+    for headers, seqsnorm, seqsins in zip(headersbp1, seqsnormbp1, seqsinsbp1):
+        combined_seq = seqsnorm + seqsins
+        output.append((headers, combined_seq.upper()))
+
+    for headers, seqsnorm, seqsins in zip(headersbp2, seqsnormbp2, seqsinsbp2):
+        combined_seq = seqsins + seqsnorm
+        output.append((headers, combined_seq.upper()))
+    return output

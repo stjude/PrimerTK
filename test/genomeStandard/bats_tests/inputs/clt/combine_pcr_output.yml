@@ -1,0 +1,3 @@
+catted_filename: pcr_output.fa
+chromosome_fastas:
+ - {class: File, path: ../../data/clt/test_primeramp.fa }

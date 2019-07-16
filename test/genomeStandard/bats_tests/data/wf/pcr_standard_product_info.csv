@@ -1,0 +1,2 @@
+Chromosome,Position1,Position2,Sample_Pos,Sequence ID,PCR_Prod_Len,Forward,Reverse,Product GC%,ForwardPrimLen,ReversePrimLen
+1,1074,1381,1200,sample3_gene3_1:1200__,308bp,GCAGAAACTCACGTCACGGT,CTGCCACTACACCTTGAGCA,64.93506493506493,20,20
