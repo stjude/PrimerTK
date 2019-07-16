@@ -24,10 +24,7 @@ inputs:
   sequence_target: string
   mispriming_library: string
   thermodynamics_path: string
-  output: string
-  percent_alignment: int
   pcr: string
-  outfile: string
   chromosome_fasta: File[]
   catted_filename: string
   vcf_in:
@@ -58,12 +55,6 @@ outputs:
   top_ranked_primers:
     type: File
     outputSource: post_pcr_analysis/top_ranked_primers
-  idt_plate_forward:
-    type: File
-    outputSource: post_pcr_analysis/idt_plate_fwd
-  idt_plate_reverse:
-    type: File
-    outputSource: post_pcr_analysis/idt_plate_rvs
   snp_indexed_file:
     type: File
     outputSource: primer_tabix/snp_indexed_file
@@ -93,15 +84,12 @@ steps:
     run: ./tools/primer3.cwl
     in:
       primer3_input_file: genome_iterator/primer3_input_file
-      output: output
     out: [primer_dump_file]
   standard_pcr_gen:
     run: ./tools/standard_pcr_gen.cwl
     in:
       primer_dump: primer3/primer_dump_file
-      percent_alignment: percent_alignment
       pcr: pcr
-      outfile: outfile
     out: [total_primers_list, pcr_input]
   is_pcr:
     run: ./tools/is_pcr.cwl
@@ -121,7 +109,7 @@ steps:
     in:
       pcr_output: combine_pcr_outputs/pcr_combined
       total_primers: standard_pcr_gen/total_primers_list
-    out: [all_product_info, filtered_good_primers, top_ranked_primers, idt_plate_fwd, idt_plate_rvs]
+    out: [all_product_info, filtered_good_primers, top_ranked_primers]
   primer_tabix:
     run: ./tools/primer_tabix.cwl
     in:

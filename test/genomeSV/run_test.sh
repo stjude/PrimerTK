@@ -1,31 +1,23 @@
 #!/usr/bin/env bash
-# Code developed by JRM3
+# test developed by JRM3
 
-export PYTHONPATH=/home/dkennetz/PrimerTK/src:$PYTHONPATH
-
-SKIP_COVERED=""
-COVERAGE=""
+# This script will ALWAYS be run from the directory in which it is locatred
+# so as to ensure relative directory structures are intact.
+SCRIPT_DIR=$(dirname $0)
+#cd $SCRIPT_DIR
 
 usage() {
-    echo "run_tests.sh [-h] [--coverage] [--skip-covered]"
+    echo "run_tests.sh [-h]"
 }
 
-while [[ ! -z $1 ]]; do
-    case $1 in
-        --skip-covered) SKIP_COVERED="--skip-covered"; COVERAGE=True; ;;
-        --coverage) COVERAGE=True; ;;
-        -h) usage && exit 0; ;;
-    esac
-    shift
-done
+####################
+### Build source ###
+####################
+export PYTHONPATH=$(pwd)/../../lib:$PYTHONPATH
+export PATH=$(pwd)/../../scripts:$PATH
 
-if [[ $COVERAGE ]]; then
-    coverage run -m unittest discover ./ -p "test*.py" -b
-    coverage_report=$(mktemp)
-    coverage report $SKIP_COVERED --include="/home/dkennetz/PrimerTK/src/genome_iterator_sv.py" -m > $coverage_report
-#    coverage report $SKIP_COVERED -m > $coverage_report
-    cat $coverage_report
-    rm $coverage_report
-else
-    python3 -m unittest discover ./ -p "test*.py" -b
-fi
+#########################
+### Python unit tests ###
+#########################
+coverage run --source .. -m unittest discover python_tests -p "test*.py" -b
+coverage report --skip-covered -m

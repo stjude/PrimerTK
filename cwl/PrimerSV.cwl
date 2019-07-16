@@ -27,6 +27,9 @@ inputs:
   sv_type: string
   output: string
   outfile: string
+  all_primers: string
+  top_primers: string
+  plate_basename: string
 
 outputs:
   flank_file:
@@ -41,12 +44,15 @@ outputs:
   total_primer_list:
     type: File
     outputSource: pcr_setup/total_primers_list
-  total_outputs_gc:
+  all_primer_output:
     type: File
-    outputSource: pcr_sim/total_output_gc
+    outputSource: pcr_sim/all_primer_info
   top_ranking_primer:
     type: File
     outputSource: pcr_sim/top_ranking_primers
+  plate_primers:
+    type: File[]
+    outputSource: pcr_sim/plated_primers
 
 steps:
   genome_iterator_sv:
@@ -87,4 +93,7 @@ steps:
     in:
       flank_file: genome_iterator_sv/flanking_regions_file
       total_primers: pcr_setup/total_primers_list
-    out: [total_output_gc, top_ranking_primers]
+      all_primers: all_primers
+      top_primers: top_primers
+      plate_basename: plate_basename
+    out: [all_primer_info, top_ranking_primers, plated_primers]

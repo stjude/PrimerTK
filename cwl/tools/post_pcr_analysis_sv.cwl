@@ -4,7 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "gets specific region GC (no amp)"
 
-baseCommand: python3.6
+baseCommand: python3
 arguments:
  - valueFrom: primer_tk
    position: 1
@@ -23,13 +23,35 @@ inputs:
     inputBinding:
       position: 4
       prefix: -tp
+  all_primers:
+    type: string
+    default: 'all_primers.csv'
+    inputBinding:
+      position: 5
+      prefix: -all
+  top_primers:
+    type: string
+    default: 'top_primers.csv'
+    inputBinding:
+      position: 6
+      prefix: -top
+  plate_basename:
+    type: string
+    default: 'plated_primers'
+    inputBinding:
+      position: 7
+      prefix: -plate
 
 outputs:
-  total_output_gc:
+  all_primer_info:
     type: File
     outputBinding:
-      glob: 'total_list_gc.csv'
+      glob: $(inputs.all_primers)
   top_ranking_primers:
     type: File
     outputBinding:
-      glob: 'top_ranked_final_primers.csv'
+      glob: $(inputs.top_primers)
+  plated_primers:
+    type: File[]
+    outputBinding:
+      glob: '$(inputs.plate_basename)*'

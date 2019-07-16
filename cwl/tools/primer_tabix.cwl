@@ -4,7 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "tags all primers with SNP annotations"
 
-baseCommand: python3.6
+baseCommand: python3
 arguments:
  - valueFrom: primer_tk
    position: 1
@@ -17,6 +17,8 @@ inputs:
     inputBinding:
       position: 3
       prefix: -vcf
+    secondaryFiles:
+     - .tbi
   primer_pipeline_output:
     type: File
     inputBinding:

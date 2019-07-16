@@ -4,7 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "main pre pcr setup"
 
-baseCommand: python3.6
+baseCommand: python3
 arguments:
  - valueFrom: primer_tk
    position: 1
@@ -36,14 +36,29 @@ inputs:
     inputBinding:
       position: 6
       prefix: -pcr
+  no_dimer:
+    type: string
+    default: 'no_dimers.csv'
+    inputBinding:
+      position: 7
+      prefix: -nd
+  multiplex_pcr_infile:
+    type: string
+    default: 'multiplex_pcr_in.txt'
+    inputBinding:
+      position: 8
+      prefix: -mpcr
 
 outputs:
   total_primers_list:
     type: File
     outputBinding:
-      glob: 'total_list.csv'
+      glob: $(inputs.outfile)
   pcr_multiplex_input:
     type: File
     outputBinding:
-      glob: 'multiplex_pcr.txt'
-
+      glob: $(inputs.multiplex_pcr_infile)
+  no_dimer_out:
+    type: File
+    outputBinding:
+      glob: $(inputs.no_dimer)

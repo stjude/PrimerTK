@@ -28,8 +28,14 @@ inputs:
   percent_alignment: int
   pcr: string
   outfile: string
+  no_dimer: string
+  multiplex_pcr_infile: string
   chromosome_fasta: File[]
   catted_filename: string
+  pcr_product_info: string
+  all_good_primers: string
+  top_primer_info: string
+  plate_basename: string
 
 outputs:
   flank_file:
@@ -50,16 +56,15 @@ outputs:
   all_products_info:
     type: File
     outputSource: post_pcr_analysis/all_product_info
+  all_primers:
+    type: File
+    outputSource: post_pcr_analysis/filtered_good_primers
   top_ranked_primers:
     type: File
     outputSource: post_pcr_analysis/top_ranked_primers
-  idt_plate_forward:
-    type: File
-    outputSource: post_pcr_analysis/idt_plate_fwd
-  idt_plate_reverse:
-    type: File
-    outputSource: post_pcr_analysis/idt_plate_rvs
-
+  plate_primers:
+    type: File[]
+    outputSource: post_pcr_analysis/plated_primers
 steps:
   genome_iterator:
     run: ./tools/genome_iterator.cwl
@@ -94,7 +99,9 @@ steps:
       percent_alignment: percent_alignment
       pcr: pcr
       outfile: outfile
-    out: [total_primers_list, pcr_multiplex_input]
+      no_dimer: no_dimer
+      multiplex_pcr_infile: multiplex_pcr_infile
+    out: [total_primers_list, pcr_multiplex_input, no_dimer_out]
   is_pcr:
     run: ./tools/is_pcr.cwl
     scatter: chromosome_fasta
@@ -113,4 +120,8 @@ steps:
     in:
       pcr_output: combine_pcr_outputs/pcr_combined
       total_primers: multiplex_pcr_gen/total_primers_list
-    out: [all_product_info, filtered_good_primers, top_ranked_primers, idt_plate_fwd, idt_plate_rvs]
+      pcr_product_info: pcr_product_info
+      all_good_primers: all_good_primers
+      top_primer_info: top_primer_info
+      plate_basename: plate_basename
+    out: [all_product_info, filtered_good_primers, top_ranked_primers, plated_primers]
