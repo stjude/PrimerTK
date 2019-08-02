@@ -9,8 +9,6 @@ Dependencies required to run program:
 A subset of functions used after PCR.
 """
 
-#import sys
-#import os
 import argparse
 import pandas as pd
 from primer_tk import sequence_info as seqinf
@@ -53,10 +51,8 @@ def fasta_parser(pcrfile):
     """
     seqs = []
     headers = []
-    # The exit for file DNE is parsed before the arguments are called, so the arguments are not printed
-    # if -h is not passed. This is not ideal so for now these are commented out.
-#    if not os.path.exists(pcrfile):
-#        sys.exit("ERROR: pcr_file '%s' DNE"%(pcrfile))
+    if not os.path.exists(pcrfile):
+        sys.exit("ERROR: pcr_file '%s' DNE"%(pcrfile))
     with open(pcrfile) as pcr_file:
         sequence = ""
         header = None
@@ -87,7 +83,6 @@ def gc_percent_seqs(seqs_list):
             gc_list.append(seqinf.Sequence(seq).gc_percent())
     return gc_list
 
-# Below is a plethora of list modification functions. perhaps this can be improved.
 def split_headers_list(headers):
     """
     Split the headers list into unique elements instead of 1 string.
@@ -101,7 +96,7 @@ def split_headers_list(headers):
     no_chrom = [item[1:] for item in split_headers]
     return split_headers, no_chrom
 
-def chr_split_list(split_headers, sv='?'):
+def chr_split_list(split_headers):
     """
     Gets chromosome info from split_headers.
     Args:

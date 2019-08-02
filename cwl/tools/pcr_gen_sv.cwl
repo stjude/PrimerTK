@@ -4,13 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "main pre pcr setup"
 
-baseCommand: python3.6
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: pre_sv
-   position: 2
+baseCommand: [primer_tk, pre_sv]
 inputs:
   primer_dump:
     type: File

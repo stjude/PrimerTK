@@ -10,6 +10,7 @@ Dependencies required to run program.
 
 import sys
 import pandas as pd
+from primer_tk import constants
 
 def add_tabix_subparser(subparser):
     """
@@ -100,11 +101,11 @@ def match_pinfo_to_vcf(p_info, vcf):
     """
     switch = 0
     try:
-        for rec in vcf.fetch('chr1', 10000, 10050):
+        for rec in vcf.fetch('chr1', constants.START_POS, constants.END_POS):
             print("Updating switch: 1")
         switch = 1
     except:
-        for rec in vcf.fetch('1', 10000, 10050):
+        for rec in vcf.fetch('1', constants.START_POS, constants.END_POS):
             print("Updating switch: 2")
         switch = 2
 

@@ -4,13 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "gets specific region GC (no amp)"
 
-baseCommand: python3
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: post_sv
-   position: 2
+baseCommand: [primer_tk, post_sv]
 
 inputs:
   flank_file:

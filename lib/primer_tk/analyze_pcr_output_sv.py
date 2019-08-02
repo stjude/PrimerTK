@@ -160,6 +160,8 @@ def to_order_plate(top_ranking_final_primers):
         idt_order_sheet_plate_r (DataFrame): 96 well plate order format reverse primers
     """
     # Generate well numbers
+    if len(top_ranking_final_primers) == 0:
+        sys.exit("No primers were kept for any target. Try starting over with relaxed parameters.")
     well_and_nums = []
     wells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     num_wells = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
@@ -175,16 +177,13 @@ def to_order_plate(top_ranking_final_primers):
     names = top_ranking_final_primers.index.tolist()
     f_seq = top_ranking_final_primers['Primer Left Seq'].tolist()
     r_seq = top_ranking_final_primers['Primer Right Seq'].tolist()
-    try:
-        plate_order_sheet_f['Sequence Name'] = names
-        plate_order_sheet_f['Sequence Name'] = plate_order_sheet_f['Sequence Name'] + '_F'
-        plate_order_sheet_f['Sequence'] = f_seq
-        plate_order_sheet_f.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_f['Sequence'])])
-        plate_order_sheet_r['Sequence Name'] = names
-        plate_order_sheet_r['Sequence Name'] = plate_order_sheet_r['Sequence Name'] + '_R'
-        plate_order_sheet_r['Sequence'] = r_seq
-        plate_order_sheet_r.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_r['Sequence'])])
-    except TypeError:
-        sys.exit("No primers found for any targets, try again!")
+    plate_order_sheet_f['Sequence Name'] = names
+    plate_order_sheet_f['Sequence Name'] = plate_order_sheet_f['Sequence Name'] + '_F'
+    plate_order_sheet_f['Sequence'] = f_seq
+    plate_order_sheet_f.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_f['Sequence'])])
+    plate_order_sheet_r['Sequence Name'] = names
+    plate_order_sheet_r['Sequence Name'] = plate_order_sheet_r['Sequence Name'] + '_R'
+    plate_order_sheet_r['Sequence'] = r_seq
+    plate_order_sheet_r.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_r['Sequence'])])
     return plate_order_sheet_f, plate_order_sheet_r
 

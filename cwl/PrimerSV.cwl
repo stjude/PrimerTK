@@ -10,22 +10,48 @@ requirements:
 inputs:
   ref_genome: File
   regions_file: File
-  primer_opt_size: int
-  primer_min_size: int
-  primer_max_size: int
-  primer_opt_gc: int
-  primer_min_gc: int
-  primer_max_gc: int
-  primer_opt_tm: int
-  primer_min_tm: int
-  primer_max_tm: int
-  product_size_range: string
-  flanking_region_size: int
-  sequence_target: string
+  primer_opt_size:
+    type: int
+    default: 22
+  primer_min_size:
+    type: int
+    default: 18
+  primer_max_size:
+    type: int
+    default: 26
+  primer_opt_gc:
+    type: int
+    default: 50
+  primer_min_gc:
+    type: int
+    default: 20
+  primer_max_gc:
+    type: int
+    default: 80
+  primer_opt_tm:
+    type: int
+    default: 60
+  primer_min_tm:
+    type: int
+    default: 57
+  primer_max_tm:
+    type: int
+    default: 63
+  product_size_range:
+    type: string
+    default: '200-400'
+  flanking_region_size:
+    type: int
+    default: 200
+  sequence_target:
+    type: string
+    default: '199,1'
   mispriming_library: string
   thermodynamics_path: string
   sv_type: string
-  output: string
+  output:
+    type: string
+    default: primer3_dump.txt
   outfile: string
   all_primers: string
   top_primers: string

@@ -10,24 +10,49 @@ requirements:
 inputs:
   ref_genome: File
   regions_file: File
-  primer_opt_size: int
-  primer_min_size: int
-  primer_max_size: int
-  primer_opt_gc: int
-  primer_min_gc: int
-  primer_max_gc: int
-  primer_opt_tm: int
-  primer_min_tm: int
-  primer_max_tm: int
-  product_size_range: string
-  flanking_region_size: int
-  sequence_target: string
+  primer_opt_size:
+    type: int
+    default: 22
+  primer_min_size:
+    type: int
+    default: 18
+  primer_max_size:
+    type: int
+    default: 26
+  primer_opt_gc:
+    type: int
+    default: 50
+  primer_min_gc:
+    type: int
+    default: 20
+  primer_max_gc:
+    type: int
+    default: 80
+  primer_opt_tm:
+    type: int
+    default: 60
+  primer_min_tm:
+    type: int
+    default: 57
+  primer_max_tm:
+    type: int
+    default: 63
+  product_size_range:
+    type: string
+    default: '200-400'
+  flanking_region_size:
+    type: int
+    default: 200
+  sequence_target:
+    type: string
+    default: '199,1'
   mispriming_library: string
   thermodynamics_path: string
-  output: string
-  pcr: string
+  output:
+    type: string
+    default: primer3_dump.txt
   outfile: string
-  standard_pcr_infile: string
+  standard_pcr_input: string
   chromosome_fasta: File[]
   catted_filename: string
   pcr_product_info: string
@@ -95,9 +120,8 @@ steps:
     run: ./tools/standard_pcr_gen.cwl
     in:
       primer_dump: primer3/primer_dump_file
-      pcr: pcr
       outfile: outfile
-      standard_pcr_infile: standard_pcr_infile
+      standard_pcr_input: standard_pcr_input
     out: [total_primers_list, pcr_input]
   is_pcr:
     run: ./tools/is_pcr.cwl

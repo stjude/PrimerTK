@@ -4,13 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "post pcr analysis"
 
-baseCommand: python3
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: post
-   position: 2
+baseCommand: [primer_tk, post]
 inputs:
   pcr_output:
     type: File
