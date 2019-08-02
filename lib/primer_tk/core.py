@@ -10,6 +10,7 @@ from primer_tk.mp_class import MissingPrimers as mp
 from primer_tk.mp_class import create_df as cd
 from primer_tk.mp_class_sv import MissingPrimers as mpv
 from primer_tk.mp_class_sv import create_df as cdv
+from primer_tk import utils
 import primer_tk.primer_cross_hyb as pch
 from primer_tk import primer_tabix as pt
 from primer_tk import genome_iterator_sv as giv
@@ -45,116 +46,14 @@ def iterator_sv(args):
             for head, seq in flank_data:
                 flanking.write(">"+head+'\n'+seq+'\n')
             # 6) generate primer3 input file
-                primer3_in.write("SEQUENCE_ID="+head+'\n'
-                                 +"SEQUENCE_TEMPLATE="+seq+'\n'
-                                 +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
-                                 +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
-                                 +"PRIMER_TASK=pick_detection_primers"+'\n'
-                                 +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
-                                 +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
-                                 +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
-                                 +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
-                                 +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
-                                 +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
-                                 +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
-                                 +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
-                                 +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
-                                 +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
-                                 +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
-                                 +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
-                                 +"PRIMER_SALT_DIVALENT=1.5"+'\n'
-                                 +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
-                                 +"PRIMER_DNTP_CONC=0.6"+'\n' # assume no dntps are present when hybridizing
-                                 +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
-                                 +"PRIMER_DNA_CONC=50.0"+'\n'
-                                 +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
-                                 +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
-                                 +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
-                                 +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
-                                 +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
-                                 +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
-                                 +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
-                                 +"PRIMER_MAX_POLY_X=3"+'\n'
-                                 +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
-                                 +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
-                                 +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
-                                 +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
-                                 +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
-                                 +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
-                                 +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
-                                 +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
-                                 +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
-                                 +"PRIMER_NUM_RETURN=5"+'\n'
-                                 +"P3_FILE_FLAG=1"+'\n'
-                                 +"PRIMER_EXPLAIN_FLAG=1"+'\n'
-                                 +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
-                                 +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
-                                 +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
-                                 +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
-                                 +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
-                                 +"="+'\n')
+                primer3_in.write(utils.primer3_input(head, seq, args))
         elif args.sv == 'inversion':
             flank_data = giv.flanking_regions_fasta_inversion(genome, small_regions, args.flanking_region_size)
             primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
             for head, seq in flank_data:
                 flanking.write(">"+head+'\n'+seq+'\n')
             # 6) generate primer3 input file
-                primer3_in.write("SEQUENCE_ID="+head+'\n'
-                                 +"SEQUENCE_TEMPLATE="+seq+'\n'
-                                 +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
-                                 +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
-                                 +"PRIMER_TASK=pick_detection_primers"+'\n'
-                                 +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
-                                 +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
-                                 +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
-                                 +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
-                                 +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
-                                 +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
-                                 +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
-                                 +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
-                                 +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
-                                 +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
-                                 +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
-                                 +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
-                                 +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
-                                 +"PRIMER_SALT_DIVALENT=1.5"+'\n'
-                                 +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
-                                 +"PRIMER_DNTP_CONC=0.6"+'\n' # assume no dntps are present when hybridizing
-                                 +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
-                                 +"PRIMER_DNA_CONC=50.0"+'\n'
-                                 +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
-                                 +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
-                                 +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
-                                 +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
-                                 +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
-                                 +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
-                                 +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
-                                 +"PRIMER_MAX_POLY_X=3"+'\n'
-                                 +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
-                                 +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
-                                 +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
-                                 +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
-                                 +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
-                                 +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
-                                 +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
-                                 +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
-                                 +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
-                                 +"PRIMER_NUM_RETURN=5"+'\n'
-                                 +"P3_FILE_FLAG=1"+'\n'
-                                 +"PRIMER_EXPLAIN_FLAG=1"+'\n'
-                                 +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
-                                 +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
-                                 +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
-                                 +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
-                                 +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
-                                 +"="+'\n')
+                primer3_in.write(utils.primer3_input(head, seq, args))
         flanking.close()
         primer3_in.close()
 
@@ -167,58 +66,7 @@ def iterator_sv(args):
         primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
         for head, seq in flank_data:
             flanking.write(">"+head+'\n'+seq+'\n')
-            primer3_in.write("SEQUENCE_ID="+head+'\n'
-                             +"SEQUENCE_TEMPLATE="+seq+'\n'
-                             +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
-                             +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
-                             +"PRIMER_TASK=pick_detection_primers"+'\n'
-                             +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
-                             +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
-                             +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
-                             +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
-                             +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
-                             +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
-                             +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
-                             +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
-                             +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
-                             +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
-                             +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
-                             +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
-                             +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
-                             +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
-                             +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
-                             +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
-                             +"PRIMER_SALT_DIVALENT=1.5"+'\n'
-                             +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
-                             +"PRIMER_DNTP_CONC=0.6"+'\n' # assume no dntps are present when hybridizing
-                             +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
-                             +"PRIMER_DNA_CONC=50.0"+'\n'
-                             +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
-                             +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
-                             +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
-                             +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
-                             +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
-                             +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
-                             +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
-                             +"PRIMER_MAX_POLY_X=3"+'\n'
-                             +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
-                             +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
-                             +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
-                             +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
-                             +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
-                             +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
-                             +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
-                             +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
-                             +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
-                             +"PRIMER_NUM_RETURN=5"+'\n'
-                             +"P3_FILE_FLAG=1"+'\n'
-                             +"PRIMER_EXPLAIN_FLAG=1"+'\n'
-                             +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
-                             +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
-                             +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
-                             +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
-                             +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
-                             +"="+'\n')
+            primer3_in.write(utils.primer3_input(head, seq, args))
     flanking.close()
     primer3_in.close()
 
@@ -251,58 +99,7 @@ def iterator(args):
     for head, seq in flank_data:
         flanking.write(">"+head+'\n'+seq+'\n')
     # 6) generate primer3 input file
-        primer3_in.write("SEQUENCE_ID="+head+'\n'
-                         +"SEQUENCE_TEMPLATE="+seq+'\n'
-                         +"SEQUENCE_TARGET=%s" %args.sequence_target+'\n'
-                         +"PRIMER_FIRST_BASE_INDEX=1"+'\n'
-                         +"PRIMER_TASK=pick_detection_primers"+'\n'
-                         +"PRIMER_MIN_THREE_PRIME_DISTANCE=3"+'\n'
-                         +"PRIMER_MAX_LIBRARY_MISPRIMING=12.00"+'\n'
-                         +"PRIMER_PAIR_MAX_LIBRARY_MISPRIMING=20.00"+'\n'
-                         +"PRIMER_PRODUCT_SIZE_RANGE=%s" %args.product_size_range+'\n'
-                         +"PRIMER_MAX_END_STABILITY=9.0"+'\n'
-                         +"PRIMER_MAX_SELF_ANY_TH=45.00"+'\n'
-                         +"PRIMER_MAX_SELF_END_TH=35.00"+'\n'
-                         +"PRIMER_PAIR_MAX_COMPL_ANY_TH=45.00"+'\n'
-                         +"PRIMER_PAIR_MAX_COMPL_END_TH=35.00"+'\n'
-                         +"PRIMER_MAX_HAIRPIN_TH=24.00"+'\n'
-                         +"PRIMER_MAX_TEMPLATE_MISPRIMING_TH=40.00"+'\n'
-                         +"PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING_TH=70.00"+'\n'
-                         +"PRIMER_TM_FORMULA=1"+'\n' # use SantaLucia parameters
-                         +"PRIMER_SALT_CORRECTIONS=1"+'\n' # SantaLucia 1998 paper
-                         +"PRIMER_SALT_MONOVALENT=50.0"+'\n' # mM conc of monovalent salt cations
-                         +"PRIMER_INTERNAL_SALT_MONOVALENT=50.0"+'\n' # same as above
-                         +"PRIMER_SALT_DIVALENT=1.5"+'\n'
-                         +"PRIMER_INTERNAL_SALT_DIVALENT=1.5"+'\n'
-                         +"PRIMER_DNTP_CONC=0.6"+'\n'
-                         +"PRIMER_INTERNAL_DNTP_CONC=0.6"+'\n'
-                         +"PRIMER_DNA_CONC=50.0"+'\n'
-                         +"PRIMER_INTERNAL_DNA_CONC=50.0"+'\n'
-                         +"PRIMER_THERMODYNAMIC_OLIGO_ALIGNMENT=1"+'\n'
-                         +"PRIMER_THERMODYNAMIC_TEMPLATE_ALIGNMENT=1"+'\n'
-                         +"PRIMER_THERMODYNAMIC_PARAMETERS_PATH=%s" %args.thermopath+'\n'
-                         +"PRIMER_PICK_LEFT_PRIMER=1"+'\n'
-                         +"PRIMER_PICK_RIGHT_PRIMER=1"+'\n'
-                         +"PRIMER_PICK_INTERNAL_OLIGO=1"+'\n'
-                         +"PRIMER_MAX_POLY_X=3"+'\n'
-                         +"PRIMER_LEFT_NUM_RETURNED=5"+'\n'
-                         +"PRIMER_RIGHT_NUM_RETURNED=5"+'\n'
-                         +"PRIMER_OPT_SIZE=%s" %args.primer_opt_size+'\n'
-                         +"PRIMER_MIN_SIZE=%s" %args.primer_min_size+'\n'
-                         +"PRIMER_MAX_SIZE=%s" %args.primer_max_size+'\n'
-                         +"PRIMER_MIN_TM=%s" %args.primer_min_tm+'\n'
-                         +"PRIMER_OPT_TM=%s" %args.primer_opt_tm+'\n'
-                         +"PRIMER_MAX_TM=%s" %args.primer_max_tm+'\n'
-                         +"PRIMER_MAX_NS_ACCEPTED=1"+'\n'
-                         +"PRIMER_NUM_RETURN=5"+'\n'
-                         +"P3_FILE_FLAG=1"+'\n'
-                         +"PRIMER_EXPLAIN_FLAG=1"+'\n'
-                         +"PRIMER_MISPRIMING_LIBRARY=%s" %args.mispriming+'\n'
-                         +"PRIMER_MIN_GC=%s" %args.primer_min_gc+'\n'
-                         +"PRIMER_OPT_GC_PERCENT=%s" %args.primer_opt_gc+'\n'
-                         +"PRIMER_MAX_GC=%s" %args.primer_max_gc+'\n'
-                         +"PRIMER_PAIR_MAX_DIFF_TM=3"+'\n'
-                         +"="+'\n')
+        primer3_in.write(utils.primer3_input(head, seq, args))
     flanking.close()
     primer3_in.close()
 

@@ -48,7 +48,9 @@ inputs:
     default: '199,1'
   mispriming_library: string
   thermodynamics_path: string
-  output: string
+  output:
+    type: string
+    default: primer3_dump.txt
   percent_alignment:
     type: int
     default: 70

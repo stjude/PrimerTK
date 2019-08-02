@@ -10,6 +10,8 @@ A subset of functions used after PCR.
 """
 
 import argparse
+import os
+import sys
 import pandas as pd
 from primer_tk import sequence_info as seqinf
 
