@@ -4,6 +4,7 @@ load utilities
 
 setup() {
     cd $BATS_TEST_DIRNAME
+    YML=$(mktemp)
     GS=$(mktemp)
     AT=$(mktemp)
 }
@@ -11,16 +12,19 @@ teardown() {
     cwl_teardown
     rm $GS
     rm $AT
+    rm $YML
 }
 
 @test "genome_iterator_sv_insertion" {
+    cat ../inputs/sv/genome_iterator_sv_insertion.yml > $YML
+    primer3=$(echo $PATH | sed 's/:/\n/g' | grep primer3 | head -1)
+    echo 'thermodynamics_path: '$primer3/primer3_config/ >> $YML
+    echo 'mispriming_library: '$(pwd)/../data/sv/humrep.ref >> $YML
     CWL_SCRIPT="../../../../cwl/tools/genome_iterator_sv.cwl"
-    CWL_INPUT="../inputs/sv/genome_iterator_sv_insertion.yml"
-    cwltool --preserve-entire-environment $CWL_SCRIPT $CWL_INPUT
+    cwltool --preserve-entire-environment $CWL_SCRIPT $YML
     cat primer3_input.*.txt > $AT
     cat ../data/sv/primer3_input.insertion.txt > $GS
     cmp $AT $GS
-    rm -rf primer3_input.*.txt
     rm -rf flanking_regions.*.fasta
 }
 @test "genome_iterator_sv_deletion" {
