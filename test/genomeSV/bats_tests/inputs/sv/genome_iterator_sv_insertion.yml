@@ -5,3 +5,5 @@ regions_file:
   class: File
   path: /home/dkennetz/PrimerTK/test/genomeSV/bats_tests/data/sv/insertion_input.csv
 sv_type: insertion
+thermodynamics_path: /home/dkennetz/primer3/src/primer3_config/
+mispriming_library: /home/dkennetz/PrimerTK/test/genomeSV/bats_tests/data/sv/humrep.ref
