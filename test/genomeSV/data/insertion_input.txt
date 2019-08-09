@@ -1,0 +1,2 @@
+gene1	sample1	1	10	100	2	1	10	+
+gene2	sample2	1	10	100	2	1	10	-

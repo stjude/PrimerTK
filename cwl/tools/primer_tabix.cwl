@@ -4,19 +4,15 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "tags all primers with SNP annotations"
 
-baseCommand: python3.6
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: tabix
-   position: 2
+baseCommand: [primer_tk, tabix]
 inputs:
   vcf_in:
     type: File
     inputBinding:
       position: 3
       prefix: -vcf
+    secondaryFiles:
+     - .tbi
   primer_pipeline_output:
     type: File
     inputBinding:

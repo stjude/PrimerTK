@@ -1,0 +1,4 @@
+primer_dump:
+  class: File
+  path: ../../data/sv/primer_dump_deletion.txt
+outfile: total_primers_deletion.csv

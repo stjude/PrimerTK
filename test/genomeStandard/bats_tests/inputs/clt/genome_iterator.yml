@@ -1,0 +1,9 @@
+ref_genome:
+  class: File
+  path: ../../data/clt/test.fa
+regions_file:
+  class: File
+  path: ../../data/clt/input2.csv
+mispriming_library: '/home/dkennetz/PrimerTK/test/genomeStandard/bats_tests/data/clt/humrep.ref'
+thermodynamics_path: '/home/dkennetz/primer3/src/primer3_config'
+

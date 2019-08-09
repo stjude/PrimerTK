@@ -4,13 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "primer3 input file generator"
 
-baseCommand: python3.6
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: iterator
-   position: 2
+baseCommand: [primer_tk, iterator]
 inputs:
   ref_genome:
     type: File

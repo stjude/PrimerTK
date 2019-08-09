@@ -1,0 +1,7 @@
+vcf_in:
+  class: File
+  path: ../../data/clt/smallvcf.vcf.gz
+primer_pipeline_output:
+  class: File
+  path: ../../data/clt/primer_tabix.csv
+outfile_snp: db_snp.csv

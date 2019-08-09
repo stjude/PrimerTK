@@ -9,9 +9,8 @@ Dependencies required to run program.
 """
 
 import sys
-import argparse
 import pandas as pd
-from pysam import VariantFile
+from primer_tk import constants
 
 def add_tabix_subparser(subparser):
     """
@@ -102,11 +101,11 @@ def match_pinfo_to_vcf(p_info, vcf):
     """
     switch = 0
     try:
-        for rec in vcf.fetch('chr1', 1000000, 1000050):
+        for rec in vcf.fetch('chr1', constants.START_POS, constants.END_POS):
             print("Updating switch: 1")
         switch = 1
     except:
-        for rec in vcf.fetch('1', 1000000, 1000050):
+        for rec in vcf.fetch('1', constants.START_POS, constants.END_POS):
             print("Updating switch: 2")
         switch = 2
 
@@ -168,8 +167,6 @@ def tabix_results_to_df(tabix_list, which_primer, column_name):
     tabix_frame.columns = ["Sequence ID", "Primer Rank",
                            "Chromosome", "SNPPosition", "rs_id",
                            "GeneInfo", "CommonAlleleFreq", "TopMedFreq"]
-
-    print(tabix_frame)
     tabix_frame["GeneInfo"] = tabix_frame["GeneInfo"]\
         .apply(lambda x: "NA" if len(x) == 0 else x[0].split("=")[1])
     tabix_frame["CommonAlleleFreq"] = tabix_frame["CommonAlleleFreq"]\

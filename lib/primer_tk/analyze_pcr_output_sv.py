@@ -17,7 +17,7 @@ def add_post_subparser(subparser):
     """ Add subparser for postprocessing sv step.
 
     Args:
-        subparser (?): Subparser objeect.
+        subparser (?): Subparser object.
 
     Returns: None
     """
@@ -27,6 +27,12 @@ def add_post_subparser(subparser):
     parser.add_argument("-tp", "--total_primers", dest="total_primers",
                         help="the pre-PCR master primer file that\
                               contains all sample + primer info")
+    parser.add_argument("-all", "--all_final_primers", default="all_final_primers_sv.csv",
+                        help="all primers generated for targets")
+    parser.add_argument("-top", "--top_final_primers", default="top_final_primers_sv.csv",
+                        help="top primers generated for targets")
+    parser.add_argument("-plate", "--plate_basename", default="plated_primers",
+                        help="the basename of the primers in plate format ready to order.")
 
 def fasta_parser(pcrfile):
     """
@@ -117,7 +123,8 @@ def merge_dfs(gc_calc, total_df, seqs):
     merged = pd.concat([total, gc], axis=1) # side-by-side merge
     merged['Chromosome'] = [seqid.split(':')[0].split('_')[2] for seqid in merged['Sequence ID']]
     merged['Position1'] = [seqid.split(':')[1].strip('_').split('-')[0] for seqid in merged['Sequence ID']]
-    merged['Position2'] = [seqid.split(':')[1].strip('_').split('-')[1] for seqid in merged['Sequence ID']]
+    merged['Position2'] = [seqid.split(':')[1].strip('_').strip('__BP1').strip('__BP2').\
+                           split('-')[1] for seqid in merged['Sequence ID']]
     seqlen = []
     for seq in seqs:
         seqlen.append(len(seq[:-1]))
@@ -144,7 +151,7 @@ def merge_dfs(gc_calc, total_df, seqs):
 
 def to_order_plate(top_ranking_final_primers):
     """
-    Takes output from top_ranked_final_primers and organizes to easy order IDT plates
+    Takes output from top_ranked_final_primers and organizes to easy order plates
     (Forward and Reverse).
     Args:
         top_ranked_final_primers (DataFrame): filtered, top ranked dataframe primers
@@ -153,6 +160,8 @@ def to_order_plate(top_ranking_final_primers):
         idt_order_sheet_plate_r (DataFrame): 96 well plate order format reverse primers
     """
     # Generate well numbers
+    if len(top_ranking_final_primers) == 0:
+        sys.exit("No primers were kept for any target. Try starting over with relaxed parameters.")
     well_and_nums = []
     wells = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     num_wells = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
@@ -160,17 +169,21 @@ def to_order_plate(top_ranking_final_primers):
         for num in num_wells:
             well_and_nums.append(well+num)
 
+    # this is required because sometimes more than 96 primers are generated and the list is consumed.
+    big_well_nums = well_and_nums * 50
     top_ranking_final_primers.set_index('Sequence ID', inplace=True)
     plate_order_sheet_f = pd.DataFrame(columns=['Sequence Name', 'Sequence'])
     plate_order_sheet_r = pd.DataFrame(columns=['Sequence Name', 'Sequence'])
     names = top_ranking_final_primers.index.tolist()
-    f_seq = top_ranking_final_primers['Primer Left Seq']
-    r_seq = top_ranking_final_primers['Primer Right Seq']
-    plate_order_sheet_f['Sequence Name'] = names+'_F'
+    f_seq = top_ranking_final_primers['Primer Left Seq'].tolist()
+    r_seq = top_ranking_final_primers['Primer Right Seq'].tolist()
+    plate_order_sheet_f['Sequence Name'] = names
+    plate_order_sheet_f['Sequence Name'] = plate_order_sheet_f['Sequence Name'] + '_F'
     plate_order_sheet_f['Sequence'] = f_seq
-    plate_order_sheet_f.insert(0, 'Well Position', well_and_nums[:len(plate_order_sheet_f['Sequence'])])
-    plate_order_sheet_r['Sequence Name'] = names+'_R'
+    plate_order_sheet_f.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_f['Sequence'])])
+    plate_order_sheet_r['Sequence Name'] = names
+    plate_order_sheet_r['Sequence Name'] = plate_order_sheet_r['Sequence Name'] + '_R'
     plate_order_sheet_r['Sequence'] = r_seq
-    plate_order_sheet_r.insert(0, 'Well Position', well_and_nums[:len(plate_order_sheet_r['Sequence'])])
+    plate_order_sheet_r.insert(0, 'Well Position', big_well_nums[:len(plate_order_sheet_r['Sequence'])])
     return plate_order_sheet_f, plate_order_sheet_r
 

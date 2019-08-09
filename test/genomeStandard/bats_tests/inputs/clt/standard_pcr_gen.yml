@@ -1,0 +1,5 @@
+primer_dump:
+  class: File
+  path: ../../data/clt/primer_standard_dump.txt
+outfile: total_standard_primers.csv
+pcr: standard

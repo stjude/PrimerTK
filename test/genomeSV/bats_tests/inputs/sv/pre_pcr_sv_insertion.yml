@@ -1,0 +1,4 @@
+primer_dump:
+  class: File
+  path: ../../data/sv/primer_dump_insertion.txt
+outfile: total_primers_insertion.csv

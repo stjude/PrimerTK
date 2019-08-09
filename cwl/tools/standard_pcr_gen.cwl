@@ -4,13 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "main pre pcr setup"
 
-baseCommand: python3.6
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: pre
-   position: 2
+baseCommand: [primer_tk, pre]
 
 inputs:
   primer_dump:
@@ -25,25 +19,26 @@ inputs:
     inputBinding:
       position: 4
       prefix: -o
-  percent_alignment:
-    type: int
-    default: 60
-    inputBinding:
-      position: 5
-      prefix: -pa
   pcr:
-    type: string    
+    type: string
+    default: 'standard'
     inputBinding:
       position: 6
       prefix: -pcr
+  standard_pcr_input:
+    type: string
+    default: 'standard_pcr_in.txt'
+    inputBinding:
+      position: 7
+      prefix: -spcr
 
 outputs:
   total_primers_list:
     type: File
     outputBinding:
-      glob: 'total_list.csv'
+      glob: $(inputs.outfile)
   pcr_input:
     type: File
     outputBinding:
-      glob: 'standard_pcr.txt'
+      glob: $(inputs.standard_pcr_input)
 

@@ -4,13 +4,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 id: "post pcr analysis"
 
-baseCommand: python3.6
-arguments:
- - valueFrom: primer_tk
-   position: 1
-   prefix: -m
- - valueFrom: post
-   position: 2
+baseCommand: [primer_tk, post]
 inputs:
   pcr_output:
     type: File
@@ -22,26 +16,45 @@ inputs:
     inputBinding:
       position: 4
       prefix: -tp
+  pcr_product_info:
+    type: string
+    default: 'pcr_product_info.csv'
+    inputBinding:
+      position: 5
+      prefix: -pcri
+  all_good_primers:
+    type: string
+    default: 'all_primers.csv'
+    inputBinding:
+      position: 6
+      prefix: -all
+  top_primer_info:
+    type: string
+    default: 'top_primers.csv'
+    inputBinding:
+      position: 7
+      prefix: -top
+  plate_basename:
+    type: string
+    default: 'plated_primers'
+    inputBinding:
+      position: 8
+      prefix: -plate
 
 outputs:
   all_product_info:
     type: File
     outputBinding:
-      glob: 'pcr_product_info.csv'
+      glob: $(inputs.pcr_product_info)
   filtered_good_primers:
     type: File
     outputBinding:
-      glob: 'all_final_primers.csv'
+      glob: $(inputs.all_good_primers)
   top_ranked_primers:
     type: File
     outputBinding:
-      glob: 'top_final_primers.csv'
-  idt_plate_fwd:
-    type: File
+      glob: $(inputs.top_primer_info)
+  plated_primers:
+    type: File[]
     outputBinding:
-      glob: 'plate_forward_primers.csv'
-  idt_plate_rvs:
-    type: File
-    outputBinding:
-      glob: 'plate_reverse_primers.csv'
-
+      glob: '$(inputs.plate_basename)*'
