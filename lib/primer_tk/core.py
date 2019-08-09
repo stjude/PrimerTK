@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ Core modules """
 
-import time
+import os
 from pysam import VariantFile
 from primer_tk import genome_iterator as gi
 from primer_tk import analyze_pcr_output as ap
@@ -27,8 +27,7 @@ def iterator_sv(args):
     Returns: None
     """
 
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-
+    dataset_name = os.path.splitext(str(args.regions_file))[0]
     genome = giv.genome_iterator(args.ref_genome)
     # 2) create dataframe from input regions file
     if args.sv in ('deletion', 'inversion'):
@@ -39,17 +38,17 @@ def iterator_sv(args):
     # 4) format dataframe "chr" column to match reference genome
         small_regions = giv.match_chr_to_genome(small_regions, genome, args.sv)
     # 5) generate flanking regions fasta based on position in input file
-        flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
+        flanking = open("flanking_regions.%s.fasta" % dataset_name, 'w')
         if args.sv == 'deletion':
             flank_data = giv.flanking_regions_fasta_deletion(genome, small_regions, args.flanking_region_size)
-            primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
+            primer3_in = open("primer3_input.%s.txt" % dataset_name, 'w')
             for head, seq in flank_data:
                 flanking.write(">"+head+'\n'+seq+'\n')
             # 6) generate primer3 input file
                 primer3_in.write(utils.primer3_input(head, seq, args))
         elif args.sv == 'inversion':
             flank_data = giv.flanking_regions_fasta_inversion(genome, small_regions, args.flanking_region_size)
-            primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
+            primer3_in = open("primer3_input.%s.txt" % dataset_name, 'w')
             for head, seq in flank_data:
                 flanking.write(">"+head+'\n'+seq+'\n')
             # 6) generate primer3 input file
@@ -61,9 +60,9 @@ def iterator_sv(args):
         small_regions = giv.file_extension(args.regions_file, args.sv)
         assert len(list(small_regions)) == 9, "DataFrame contains more/less than 9 columns... Exiting."
         small_regions = giv.match_chr_to_genome(small_regions, genome, args.sv)
-        flanking = open("flanking_regions.%s.fasta" %timestr, 'w')
+        flanking = open("flanking_regions.%s.fasta" %dataset_name, 'w')
         flank_data = giv.flanking_region_fasta_insertion(genome, small_regions, args.flanking_region_size)
-        primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
+        primer3_in = open("primer3_input.%s.txt" % dataset_name, 'w')
         for head, seq in flank_data:
             flanking.write(">"+head+'\n'+seq+'\n')
             primer3_in.write(utils.primer3_input(head, seq, args))
@@ -81,8 +80,7 @@ def iterator(args):
     Returns: None
     """
 
-    # dedicated string of time for filename output.
-    timestr = time.strftime("%Y%m%d-%H%M%S")
+    dataset_name = os.path.splitext(str(args.regions_file))[0]
     # 1) create genome tuple from provided reference
     genome = gi.genome_iterator(args.ref_genome)
     # 2) create dataframe from input regions file
@@ -93,9 +91,9 @@ def iterator(args):
     # 4) format dataframe "chr" column to match reference genome
     small_regions = gi.match_chr_to_genome(small_regions, genome)
     # 5) generate flanking regions fasta based on position in input file
-    flanking = open("flanking_regions.%s.fasta" % timestr, 'w')
+    flanking = open("flanking_regions.%s.fasta" % dataset_name, 'w')
     flank_data = gi.create_flanking_regions_fasta(genome, small_regions, args.flanking_region_size)
-    primer3_in = open("primer3_input.%s.txt" % timestr, 'w')
+    primer3_in = open("primer3_input.%s.txt" % dataset_name, 'w')
     for head, seq in flank_data:
         flanking.write(">"+head+'\n'+seq+'\n')
     # 6) generate primer3 input file

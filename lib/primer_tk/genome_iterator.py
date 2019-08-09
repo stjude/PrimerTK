@@ -71,10 +71,10 @@ def add_iterator_subparser(subparser):
                               so SNP/V will be included.")
     parser.add_argument("-mp", "--mispriming", dest="mispriming",
                         help="full path to mispriming library for primer3\
-                              (/home/dkennetz/testing_p3/primers/humrep.ref")
+                              (EX: /home/dkennetz/mispriming/humrep.ref")
     parser.add_argument("-tp", "--thermopath", dest="thermopath",
                         help="full path to thermo parameters for primer3 to use\
-                              (/hpcf/apps/primer3/install/2.4.0/src/primer3_config/) install loc")
+                              (EX: /home/dkennetz/primer3/src/primer3_config/) install loc")
 
     return parser
 
