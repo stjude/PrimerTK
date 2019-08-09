@@ -226,7 +226,7 @@ def post(args):
     # 10) Merge good primers df with toal primers df
     merged_df = ap.merge_good_total(good_primers_df, args.total_primers)
     # 11) Keep only primers which match bw good and total primers
-    filtered_df = ap.filter_merged(merged_df)
+    filtered_df = ap.filter_merged(merged_df, args.off_target_max)
     filtered_df.to_csv(args.all_primer_info, index=False)
     # 12) Output only top ranked final primers after filter
     top_ranked_df = ap.top_ranked_final_primers(filtered_df)
