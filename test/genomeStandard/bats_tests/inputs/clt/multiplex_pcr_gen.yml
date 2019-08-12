@@ -1,8 +1,0 @@
-primer_dump:
-  class: File
-  path: ../../data/clt/primer_standard_dump.txt
-outfile: total_multiplex_primers.csv
-percent_alignment: 60
-pcr: multiplex
-no_dimer: 'no_dimer_primers.csv'
-multiplex_pcr_infile: 'multiplex_pcr_in.txt'

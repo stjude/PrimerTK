@@ -1,3 +1,0 @@
-Sequence ID,Primer Rank,Primer Left Seq,Primer Right Seq,Primer Left Len,Primer Right Len,Primer Left TM,Primer Right TM,Primer Left GC %,Primer Right GC %,Primer3 Predicted Product,Primer Left Pos,Primer Right Pos
-sample3_gene3_1:1200-1400__,0,AGGAGCAAAGTCGCACGG,GGTGTTTCCCTATAATCCGCCA,18,22,60.358,60.159,61.111,50.000,244,17,260
-sample3_gene3_1:1200-1400__,1,CGCAGAAACTCACGTCACG,TTCCTAGACATTGCTGGTGG,19,20,59.517,57.213,57.895,50.000,329,73,401

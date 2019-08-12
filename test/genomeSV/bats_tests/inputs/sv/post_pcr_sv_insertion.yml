@@ -1,6 +1,0 @@
-flank_file:
-  class: File
-  path: ../../data/sv/flanking_regions.insertion.fasta
-total_primers:
-  class: File
-  path: ../../data/sv/total_primers_insertion.csv
