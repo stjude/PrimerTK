@@ -8,7 +8,7 @@ setuptools.setup(
     author_email="dennis.kennetz@stjude.org",
     description="A toolkit to design primers in multiplex pools and around SVs.",
     packages=['primer_tk', 'primer_tk.tests'],
-    package_dir={'primer_tk': 'lib/primer_tk', 'primer_tk.tests': 'test/python_tests'},
+    package_dir={'primer_tk': 'src/primer_tk', 'primer_tk.tests': 'test/python_tests'},
     package_data={'test': [
         'data/*']},
     install_requires=[
