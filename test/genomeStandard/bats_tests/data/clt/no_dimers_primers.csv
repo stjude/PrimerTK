@@ -1,2 +1,0 @@
-Sequence ID,Primer Rank,Primer Left Seq,Primer Right Seq,Primer Left Len,Primer Right Len,Primer Left TM,Primer Right TM,Primer Left GC %,Primer Right GC %,Primer3 Predicted Product,Dimers1_2F,Dimers2_1F,Dimers1_1F,Dimers2_2F,Dimers1_2R,Dimers2_1R,Dimers1_1R,Dimers2_2R
-sample3_gene3_1:1200__,0,GCAGAAACTCACGTCACGGT,CTGCCACTACACCTTGAGCA,20,20,60.875,59.965,55.000,55.000,308,False,False,False,False,False,False,False,False

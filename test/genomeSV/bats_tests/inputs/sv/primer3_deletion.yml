@@ -1,4 +1,0 @@
-output: primer_dump.txt
-primer3_input_file:
-  class: File
-  path: ../../data/sv/primer3_input.deletion.txt

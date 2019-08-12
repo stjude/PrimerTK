@@ -1,4 +1,0 @@
-primer_dump:
-  class: File
-  path: ../../data/sv/primer_dump_inversion.txt
-outfile: total_primers_inversion.csv
