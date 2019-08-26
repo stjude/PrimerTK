@@ -36,14 +36,13 @@ rm -rf $TMPDIR
 #########
 
 # Select the installation directory and make sure it exists
-ISPCR_INSTALL_DIR=~/bin/isPcr33
-mkdir -p $ISPCR_INSTALL_DIR
+ISPCR_EXECUTABLE_DIR=~/bin/isPcr33
+mkdir -p $ISPCR_EXECUTABLE_DIR
 # Make a tmp location to download / install the source
 MACHTYPE=$(uname -m)
 export MACHTYPE
-ISPCR_33=~/bin/$MACHTYPE
-mkdir -p $ISPCR_33
-export PATH=$PATH:$ISPCR_33
+ISPCR33_INSTALL_DIR=~/bin/$MACHTYPE
+mkdir -p $ISPCR33_INSTALL_DIR
 
 TMPDIR2=$(mktemp -d)
 echo $TMPDIR2
@@ -52,9 +51,7 @@ wget https://hgwdev.gi.ucsc.edu/~kent/src/isPcr33.zip && unzip isPcr33.zip 1> .u
 mkdir ./isPcrSrc/lib/$MACHTYPE
 cd $TMPDIR2/isPcrSrc/lib && make HG_WARN=""
 cd $TMPDIR2/isPcrSrc && make HG_WARN=""
-cp $ISPCR_33/isPcr $ISPCR_INSTALL_DIR
-rm -rf $ISPCR_33
+cp $ISPCR33_INSTALL_DIR/isPcr $ISPCR_EXECUTABLE_DIR
+rm -rf $ISPCR33_INSTALL_DIR
 rm -rf $TMPDIR2
-# TODO - why doesn't this compile?
-# there is code in the installer which specifically points to /usr/bin/$MACHTYPE as the place to put executables
 
