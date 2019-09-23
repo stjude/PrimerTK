@@ -56,6 +56,9 @@ inputs:
   chromosome_fasta: File[]
   catted_filename: string
   pcr_product_info: string
+  off_target:
+    type: int
+    default: 8
   all_good_primers: string
   top_primer_info: string
   plate_basename: string
@@ -142,6 +145,7 @@ steps:
       pcr_output: combine_pcr_outputs/pcr_combined
       total_primers: standard_pcr_gen/total_primers_list
       pcr_product_info: pcr_product_info
+      off_target: off_target
       all_good_primers: all_good_primers
       top_primer_info: top_primer_info
       plate_basename: plate_basename

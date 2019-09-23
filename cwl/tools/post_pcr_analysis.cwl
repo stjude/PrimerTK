@@ -28,6 +28,9 @@ inputs:
     inputBinding:
       position: 6
       prefix: -all
+  off_target:
+    type: int
+    default: 8
   top_primer_info:
     type: string
     default: 'top_primers.csv'
