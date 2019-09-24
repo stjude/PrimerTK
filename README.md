@@ -75,4 +75,4 @@ PrimerTK is intended to be run as a workflow broken up in the following way:
 primer_tk iterator --> primer3 --> primer_tk pre --> isPcr --> primer_tk post --> primer_tk tabix
 ```
 
-Because of this, a more complete documentation guide can be found [here](link_pending).
+Because of this, a more complete documentation guide can be found [here](https://drkennetz.github.io/PrimerTK.github.io/).
