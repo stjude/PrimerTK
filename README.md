@@ -1,7 +1,6 @@
 PrimerTK
 ========
-
-[![Build Status](https://travis-ci.com/stjude/PrimerTK.svg?token=SGuFQqVLXJfs4J1ta2wA&branch=development)](https://travis-ci.com/stjude/PrimerTK)
+[![Build Status](https://travis-ci.com/stjude/PrimerTK.svg?token=SGuFQqVLXJfs4J1ta2wA&branch=master)](https://travis-ci.com/stjude/PrimerTK)
 
 PrimerTK is a primer toolkit to assist in standard primer design, multiplex primer design, and primer design around complex structural variants.
 
