@@ -2,61 +2,49 @@
 
 cwlVersion: v1.0
 class: CommandLineTool
-id: "post pcr analysis"
+id: "gets specific region GC (no amp)"
 
-baseCommand: [primer_tk, post]
+baseCommand: [primer_tk, post_sv]
+
 inputs:
-  pcr_output:
+  flank_file:
     type: File
     inputBinding:
       position: 3
-      prefix: -i
+      prefix: -f
   total_primers:
     type: File
     inputBinding:
       position: 4
       prefix: -tp
-  pcr_product_info:
-    type: string
-    default: 'pcr_product_info.csv'
-    inputBinding:
-      position: 5
-      prefix: -pcri
-  all_good_primers:
+  all_primers:
     type: string
     default: 'all_primers.csv'
     inputBinding:
-      position: 6
+      position: 5
       prefix: -all
-  off_target:
-    type: int
-    default: 8
-  top_primer_info:
+  top_primers:
     type: string
     default: 'top_primers.csv'
     inputBinding:
-      position: 7
+      position: 6
       prefix: -top
   plate_basename:
     type: string
     default: 'plated_primers'
     inputBinding:
-      position: 8
+      position: 7
       prefix: -plate
 
 outputs:
-  all_product_info:
+  all_primer_info:
     type: File
     outputBinding:
-      glob: $(inputs.pcr_product_info)
-  filtered_good_primers:
+      glob: $(inputs.all_primers)
+  top_ranking_primers:
     type: File
     outputBinding:
-      glob: $(inputs.all_good_primers)
-  top_ranked_primers:
-    type: File
-    outputBinding:
-      glob: $(inputs.top_primer_info)
+      glob: $(inputs.top_primers)
   plated_primers:
     type: File[]
     outputBinding:

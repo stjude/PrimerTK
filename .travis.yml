@@ -1,0 +1,25 @@
+dist: xenial
+services:
+  - docker
+
+language: python
+
+os:
+  - linux
+install:
+  - pip install tox-travis
+jobs:
+  include:
+    - stage: test
+      python: "3.5"
+    - stage: test
+      python: "3.6"
+    - stage: test
+      python: "3.7"
+script: tox
+branches:
+  only:
+    - development
+    - master
+notifications:
+  email: false
