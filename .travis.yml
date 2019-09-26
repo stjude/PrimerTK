@@ -20,5 +20,6 @@ script: tox
 branches:
   only:
     - development
+    - master
 notifications:
   email: false
