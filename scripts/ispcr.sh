@@ -30,7 +30,7 @@ else
     echo "Running In Silico PCR on pcr input positions..."
 fi
 
-for x in $chromosome_dir/chr*.fa
+for x in $chromosome_dir/*.fa
 do
     isPcr $x $pcr_input stdout >> pcr_output.fa
 done

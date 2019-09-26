@@ -19,6 +19,6 @@ jobs:
 script: tox
 branches:
   only:
-    - off_target_filter
+    - development
 notifications:
   email: false
