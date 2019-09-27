@@ -4,8 +4,6 @@ PrimerTK
 
 PrimerTK is a primer toolkit to assist in standard primer design, multiplex primer design, and primer design around complex structural variants.
 
-[USER MANUAL](https://drkennetz.github.io/PrimerTK.github.io/).
-
 Prerequisites
 -------------
 
@@ -75,5 +73,3 @@ PrimerTK is intended to be run as a workflow broken up in the following way:
 ```
 primer_tk iterator --> primer3 --> primer_tk pre --> isPcr --> primer_tk post --> primer_tk tabix
 ```
-
-Because of this, a more complete documentation guide can be found [here](https://drkennetz.github.io/PrimerTK.github.io/).
