@@ -2,6 +2,8 @@ PrimerTK
 ========
 [![Build Status](https://travis-ci.com/stjude/PrimerTK.svg?token=SGuFQqVLXJfs4J1ta2wA&branch=master)](https://travis-ci.com/stjude/PrimerTK)
 
+[FULL USER MANUAL](https://stjude.github.io/PrimerTK/)
+
 PrimerTK is a primer toolkit to assist in standard primer design, multiplex primer design, and primer design around complex structural variants.
 
 Prerequisites
@@ -18,9 +20,9 @@ If you install via git clone, PrimerTK comes with a helper script to install in 
 
 This helper script will also be available via pip install, but will be located in your python specific site-packages location.
 
-To install isPcr and primer3 using the helper script, edit the file and uncomment the lines in between the text boxes and then run:
+**NOTE: PrimerTK relies upon isPcr and primer3 which are external packages. Please verify that you have permissions to use those tools prior to installing them.**
 
-`installer.sh`
+We use the `installer.sh` script to install these packages. Once you have verified that you have proper permissions based on their respective licenses modify `installer.sh` as needed for your site.
 
 This will put primer3 and isPcr in your `~/bin/`
 
@@ -30,7 +32,6 @@ Install all packages via git clone:
 # Cloning the PrimerTK repository
 $ git clone https://github.com/stjude/PrimerTK.git 
 $ cd PrimerTK/scripts
-# edit installer.sh removing comments to install primer3 and isPcr
 $ ./installer.sh
 $ cd ..
 $ pip3 install . --user # can install to root as well.
@@ -42,7 +43,6 @@ Install all packages via pip:
 # pip installing primer_tk and installing 3rd party programs using installer.sh
 $ pip3 install primer_tk --user
 $ cd ~/.local/lib/python3.x/site-packages/primer_tk/scripts
-# edit installer.sh to remove comment in front of lines between text boxes.
 $ ./installer.sh
 ```
 

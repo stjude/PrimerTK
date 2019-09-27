@@ -1,6 +1,6 @@
 #
-# Third party tools Primer3 (TODO: Link), available under GNU GPLv2, and In Silico PCR
-# (TODO: Link) are needed for PrimerTK to work properly. We do not include those third
+# Third party tools Primer3 (https://github.com/primer3-org/primer3.git), available under GNU GPLv2, and In Silico PCR
+# (https://hgwdev.gi.ucsc.edu/~kent/src/isPcr33.zip) are needed for PrimerTK to work properly. We do not include those third
 # party tools alongside the PrimerTK software. However, the following commands were 
 # used to install the software as of the time of PrimerTK's release.
 
