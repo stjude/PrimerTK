@@ -23,12 +23,10 @@ setuptools.setup(
     tests_require=['unittest', 'coverage'],
     zip_safe=True,
     license='Apache2.0',
-    url = 'https://github.com/stjude/PrimerTK'
-    download_url = 'https://github.com/stjude/PrimerTK/archive/1.0.0.tar.gz'
+    url = 'https://github.com/stjude/PrimerTK',
+    download_url = 'https://github.com/stjude/PrimerTK/archive/1.0.0.tar.gz',
     classifiers=[
         "Programming Language :: Python :: 3",
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: Biology/Genomics',
         'Environment :: Console',
         'Natural Language :: English',
         'Operating System :: OS Independent'
