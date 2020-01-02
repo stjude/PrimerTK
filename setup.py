@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='primer_tk',
-    version='1.0.0',
+    version='1.0.1',
     scripts=['./scripts/primer_tk'],
     author="Dennis Kennetz",
     author_email="dennis.kennetz@stjude.org",
