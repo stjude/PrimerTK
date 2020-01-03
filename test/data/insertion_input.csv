@@ -1,2 +1,4 @@
-gene1,sample1,chr1,10,100,chr2,1,10,+
-gene2,sample2,chr1,10,100,chr2,1,10,-
+gene1,sample1,chr1,10,100,+,chr2,1,10,+
+gene2,sample2,chr1,10,100,+,chr2,1,10,-
+gene3,sample3,chr1,10,100,-,chr2,1,10,+
+gene4,sample4,chr1,10,100,-,chr2,1,10,-
