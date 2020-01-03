@@ -1,0 +1,4 @@
+gene1	sample1	1	8	+	2	13	+
+gene2	sample2	1	8	+	2	13	-
+gene3	sample3	1	8	-	2	13	+
+gene4	sample4	1	8	-	2	13	-

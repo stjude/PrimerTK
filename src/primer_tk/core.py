@@ -58,11 +58,21 @@ def iterator_sv(args):
 
     elif args.sv == 'insertion':
         small_regions = giv.file_extension(args.regions_file, args.sv)
-        assert len(list(small_regions)) == 9, "DataFrame contains more/less than 9 columns... Exiting."
+        assert len(list(small_regions)) == 10, "DataFrame contains more/less than 10 columns... Exiting."
         small_regions = giv.match_chr_to_genome(small_regions, genome, args.sv)
         flanking = open("flanking_regions.%s.fasta" %dataset_name, 'w')
         flank_data = giv.flanking_region_fasta_insertion(genome, small_regions, args.flanking_region_size)
         primer3_in = open("primer3_input.%s.txt" % dataset_name, 'w')
+        for head, seq in flank_data:
+            flanking.write(">"+head+'\n'+seq+'\n')
+            primer3_in.write(utils.primer3_input(head, seq, args))
+    elif args.sv == 'translocation':
+        small_regions = giv.file_extension(args.regions_file, args.sv)
+        assert len(list(small_regions)) == 8, "DataFrame contains more/less than 8 columns... Exiting."
+        small_regions = giv.match_chr_to_genome(small_regions, genome, args.sv)
+        flanking = open("flanking_regions.%s.fasta" %dataset_name, 'w')
+        flank_data = giv.flanking_region_fasta_translocation(genome, small_regions, args.flanking_region_size)
+        primer3_in = open("primer3_input.%s.txt" %dataset_name, 'w')
         for head, seq in flank_data:
             flanking.write(">"+head+'\n'+seq+'\n')
             primer3_in.write(utils.primer3_input(head, seq, args))

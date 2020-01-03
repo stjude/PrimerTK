@@ -75,9 +75,9 @@ def add_iterator_subparser(subparser):
                         help="full path to thermo parameters for primer3 to use\
                               (EX: /home/dkennetz/primer3/src/primer3_config/) install loc")
     parser.add_argument("-sv", "--sv-type", dest="sv",
-                        choices=['deletion', 'inversion', 'insertion'], required=True,
+                        choices=['deletion', 'inversion', 'insertion', 'translocation'], required=True,
                         help="currently supported SV primer generation: "
-                             "deletion, inversion, and insertion.")
+                             "deletion, inversion, insertion and translocation.")
 
 def genome_iterator(genome):
     """
@@ -135,19 +135,43 @@ def create_dataframe_insertion_csv(regions_file):
         Note: the chromosome column can be of format chr1 or simply 1 (chr not necessary).
         The file should contain no headers and should be structured as follows:
 
-        Gene1,Sample1,chrNorm1,posNorm1,posNorm2,chrIns2,posIns1,posIns2,strand
-        Gene2,Sample2,chrNorm2,posNorm1,posNorm2,chrIns3,posIns1,posIns2,strand
-        Gene3,Sample3,chrNorm3,posNorm1,posNorm2,chrIns4,posIns1,posIns2,strand
+        Gene1,Sample1,chrNorm1,posNorm1,posNorm2,strand,chrIns2,posIns1,posIns2,strand
+        Gene2,Sample2,chrNorm2,posNorm1,posNorm2,strand,chrIns3,posIns1,posIns2,strand
+        Gene3,Sample3,chrNorm3,posNorm1,posNorm2,strand,chrIns4,posIns1,posIns2,strand
         ...
     Returns:
         regions_df (pd.DataFrame): The infile parsed to pd.DataFrame object.
     """
 
     regions_df = pd.read_csv(regions_file, header=None)
-    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm1', 'PosNorm2',
-                          'ChrIns', 'PosIns1', 'PosIns2', 'Strand']
+    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm1', 'PosNorm2', 'StrandN',
+                          'ChrIns', 'PosIns1', 'PosIns2', 'StrandI']
     regions_df = regions_df.astype({'ChrNorm': str})
     regions_df = regions_df.astype({'ChrIns': str})
+    return regions_df
+
+def create_dataframe_translocation_csv(regions_file):
+    """
+    Creates a pandas DataFrame from a regions file in csv form
+    and uses column names in df according tot heir values.
+    
+    Args:
+        regions_file (file): input regions.csv file.
+        Note: the chromosome column can be of format chr1 or simply 1 (chr not necessary).
+        The file should contain no headers and should be constructed as follows:
+
+        Gene1,Sample1,chrNorm,posNorm,strand,chrTrans,posTrans,strand
+        Gene2,Sample2,chrNorm,posNorm,strand,chrTrans,posTrans,strand
+        Gene3,Sample3,chrNorm,posNorm,strand,chrTrans,posTrans,strand
+        ...
+    Returns:
+        regions_df (pd.DataFrame): the infile parsed to pd.DataFrame object.
+    """
+    regions_df = pd.read_csv(regions_file, header=None)
+    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm', 'StrandN',
+                          'ChrTrans', 'PosTrans', 'StrandT']
+    regions_df = regions_df.astype({'ChrNorm': str})
+    regions_df = regions_df.astype({'ChrTrans': str})
     return regions_df
 
 def create_dataframe_txt(regions_file):
@@ -168,7 +192,7 @@ def create_dataframe_txt(regions_file):
     Returns:
         regions_df (pd.DataFrame): The infile parsed to pd.DataFrame object.
     """
-    regions_df = pd.read_table(regions_file, header=None)
+    regions_df = pd.read_csv(regions_file, sep='\t', header=None)
     regions_df.columns = ['Gene', 'Sample', 'Chr', 'PosStart', 'PosStop']
     regions_df = regions_df.astype({'Chr': str})
     return regions_df
@@ -184,18 +208,42 @@ def create_dataframe_insertion_txt(regions_file):
         Note: the chromosome column can be of format chr1 or simply 1 (chr not necessary).
         The file should contain no headers and should be constructed as follows:
 
-        Gene1\tSample1\tchrNorm1\tposNorm1\tposNorm2\tchrIns2\tposIns1\tposIns2\tstrand
-        Gene2\tSample2\tchrNorm2\tposNorm1\tposNorm2\tchrIns3\tposIns1\tposIns2\tstrand
-        Gene3\tSample3\tchrNorm3\tposNorm1\tposNorm2\tchrIns4\tposIns1\tposIns2\tstrand
+        Gene1\tSample1\tchrNorm1\tposNorm1\tposNorm2\tstrand\tchrIns2\tposIns1\tposIns2\tstrand
+        Gene2\tSample2\tchrNorm2\tposNorm1\tposNorm2\tstrand\tchrIns3\tposIns1\tposIns2\tstrand
+        Gene3\tSample3\tchrNorm3\tposNorm1\tposNorm2\tstrand\tchrIns4\tposIns1\tposIns2\tstrand
         ...
     Returns:
         regions_df (pd.DataFrame): The infile parsed to pd.DataFrame object.
     """
-    regions_df = pd.read_table(regions_file, header=None)
-    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm1', 'PosNorm2',
-                          'ChrIns', 'PosIns1', 'PosIns2', 'Strand']
+    regions_df = pd.read_csv(regions_file, sep='\t', header=None)
+    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm1', 'PosNorm2', 'StrandN',
+                          'ChrIns', 'PosIns1', 'PosIns2', 'StrandI']
     regions_df = regions_df.astype({'ChrNorm': str})
     regions_df = regions_df.astype({'ChrIns': str})
+    return regions_df
+
+def create_dataframe_translocation_txt(regions_file):
+    """
+    Creates a pandas DataFrame from a regions file in txt form
+    and uses column names in df according tot heir values.
+    
+    Args:
+        regions_file (file): input regions.csv file.
+        Note: the chromosome column can be of format chr1 or simply 1 (chr not necessary).
+        The file should contain no headers and should be constructed as follows:
+
+        Gene1\tSample1\tchrNorm\tposNorm\tstrand\tchrTrans\tposTrans\tstrand
+        Gene2\tSample2\tchrNorm\tposNorm\tstrand\tchrTrans\tposTrans\tstrand
+        Gene3\tSample3\tchrNorm\tposNorm\tstrand\tchrTrans\tposTrans\tstrand
+        ...
+    Returns:
+        regions_df (pd.DataFrame): the infile parsed to pd.DataFrame object.
+    """
+    regions_df = pd.read_csv(regions_file, sep='\t', header=None)
+    regions_df.columns = ['Gene', 'Sample', 'ChrNorm', 'PosNorm', 'StrandN',
+                          'ChrTrans', 'PosTrans', 'StrandT']
+    regions_df = regions_df.astype({'ChrNorm': str})
+    regions_df = regions_df.astype({'ChrTrans': str})
     return regions_df
 
 def file_extension(infile, strvar):
@@ -219,6 +267,10 @@ def file_extension(infile, strvar):
         small_regions = create_dataframe_insertion_txt(infile)
     elif infile.lower().endswith('.csv') and strvar == 'insertion':
         small_regions = create_dataframe_insertion_csv(infile)
+    elif infile.lower().endswith('.csv') and strvar == 'translocation':
+        small_regions = create_dataframe_translocation_csv(infile)
+    elif infile.lower().endswith('.txt') and strvar == 'translocation':
+        small_regions = create_dataframe_translocation_txt(infile)
     else:
         sys.exit("Wrong File Format, should be .txt (tab) or .csv (comma), or check sv type.")
     return small_regions
@@ -247,6 +299,13 @@ def match_chr_to_genome(dataframe, genome, strvar):
         elif not dataframe['ChrNorm'].str.contains("chr").any() and "chr" in str(genome[0][0]):
             dataframe['ChrNorm'] = 'chr' + dataframe['ChrNorm']
             dataframe['ChrIns'] = 'chr' + dataframe['ChrIns']
+    elif strvar == 'translocation':
+        if dataframe['ChrNorm'].str.contains("chr").any() and "chr" not in str(genome[0][0]):
+            dataframe['ChrNorm'] = dataframe['ChrNorm'].str.replace('chr', '')
+            dataframe['ChrTrans'] = dataframe['ChrTrans'].str.replace('chr', '')
+        elif not dataframe['ChrNorm'].str.contains("chr").any() and "chr" in str(genome[0][0]):
+            dataframe['ChrNorm'] = 'chr' + dataframe['ChrNorm']
+            dataframe['ChrTrans'] = 'chr' + dataframe['ChrIns']
     else:
         sys.exit("Wrong SV type, please select an SV in help menu.")
     return dataframe
@@ -327,6 +386,61 @@ def flanking_regions_fasta_inversion(genome, dataframe, flanking_region_size):
                 output.append((header, flank_seq.upper()))
     return output
 
+def flanking_region_fasta_translocation(genome, dataframe, flanking_region_size):
+    """
+    Pulls down small region of genome for which to design primers around and
+    generates flanking regions based on strand info from input file.
+
+    Each Fasta record will contain:
+    >Sample_Gene_chrNorm:posNorm-posTrans
+    Seq of flanking region upstream of posNorm + seq after posTrans based on strand
+    
+    Args:
+        genome (list): genome list of tuples (header, seq)
+        dataframe (pd.DataFrame): dataframe with sample info.
+        flanking_region_size  (int): length of sequence to pad position with.
+    Returns:
+        output (list): (header + seq)
+    """
+    output = []
+    headersbp = []
+    seqnorm = []
+    seqtrans = []
+    for headers, seqs in genome:
+        chrm = str(headers)
+        seq = str(seqs)
+        for gene, sample, chrn, posn, strandn, chrt, post, strandt  in zip(dataframe.Gene, dataframe.Sample,
+                                                                           dataframe.ChrNorm, dataframe.PosNorm,
+                                                                           dataframe.StrandN, dataframe.ChrTrans,
+                                                                           dataframe.PosTrans, dataframe.StrandT):
+            if str(chrn) == chrm and strandn == '+':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+str(posn)+"-"+str(post))
+                flank_seq = seq[int(posn):int(posn)+int(flanking_region_size)]
+                headersbp.append(header)
+                seqnorm.append(flank_seq)
+
+            elif str(chrn) == chrm and strandn == '-':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+str(posn)+"-"+str(post))
+                flank_seq = seqinf.Sequence(seq[int(posn):int(posn)-(int(flanking_region_size)):-1])\
+                            .complement()
+                headersbp.append(header)
+                seqnorm.append(flank_seq)
+
+        for chrt, post, strandt  in zip(dataframe.ChrTrans, dataframe.PosTrans, dataframe.StrandT):
+            if str(chrt) == chrm and strandt == '+':
+                flank_seq = seq[int(post)-int(flanking_region_size):int(post)]
+                seqtrans.append(flank_seq)
+            elif str(chrt) == chrm and strandt == '-':
+                flank_seq = seqinf.Sequence(seq[int(post)+int(flanking_region_size):int(post):-1])\
+                            .complement()
+                seqtrans.append(flank_seq)
+
+    for headers, seqn, seqt in zip(headersbp, seqnorm, seqtrans):
+        combined_seq = seqt + seqn
+        output.append((headers, combined_seq.upper()))
+
+    return output
+                
 def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
     """
     Makes batch processing possible, pulls down small region
@@ -335,6 +449,8 @@ def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
 
     This is based on the chromosome and position of input file.
     Each Fasta record  will contain:
+
+    Note: If strand is negative, coordinates should be in decreasing order.
 
     >Sample_Gene_chr:posNorm1-posNorm2_BP
     Seq of flanking region upstream of SV + seq of inserted sequence based on strand
@@ -356,55 +472,69 @@ def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
     for headers, seqs in genome:
         chrm = str(headers)
         seq = str(seqs)
-        for gene, sample, chrn, startn, stopn in zip(dataframe.Gene, dataframe.Sample,
-                                                     dataframe.ChrNorm, dataframe.PosNorm1,
-                                                     dataframe.PosNorm2):
-            if str(chrn) == chrm:
+        for gene, sample, chrn, startn, stopn, strandn in zip(dataframe.Gene, dataframe.Sample,
+                                                              dataframe.ChrNorm, dataframe.PosNorm1,
+                                                              dataframe.PosNorm2, dataframe.StrandN):
+            if str(chrn) == chrm and strandn == '+':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
                                  str(startn)+"-"+str(stopn)+"__BP1")
-                flank_seq = seq[int(startn)-int(flanking_region_size):int(startn)]
+                flank_seq = seq[int(startn):int(startn)+int(flanking_region_size)]
                 seqsnormbp1.append(flank_seq)
                 headersbp1.append(header)
 
-        for chri, starti, stopi, strand in zip(dataframe.ChrIns, dataframe.PosIns1,
-                                               dataframe.PosIns2, dataframe.Strand):
-            if str(chri) == chrm and strand == '+':
-                flank_seq = seq[int(starti):int(starti)+int(flanking_region_size)]
+            elif str(chrn) == chrm and strandn == '-':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                             str(startn)+"-"+str(stopn)+"__BP1")
+                flank_seq = seqinf.Sequence(seq[int(startn):int(startn)-(int(flanking_region_size)):-1])\
+                            .complement()
+                seqsnormbp1.append(flank_seq)
+                headersbp1.append(header)
+
+        for chri, starti, stopi, strandi in zip(dataframe.ChrIns, dataframe.PosIns1,
+                                               dataframe.PosIns2, dataframe.StrandI):
+            if str(chri) == chrm and strandi == '+':
+                flank_seq = seq[int(starti)-int(flanking_region_size):int(starti)]
                 seqsinsbp1.append(flank_seq)
-            elif str(chri) == chrm and strand == '-':
-                flank_seq = seqinf.\
-                    Sequence(seq[int(stopi):int(stopi)-(int(flanking_region_size)):-1])\
-                    .complement()
+            elif str(chri) == chrm and strandi == '-':
+                flank_seq = seqinf.Sequence(seq[int(starti)+int(flanking_region_size):int(starti):-1])\
+                            .complement()
                 seqsinsbp1.append(flank_seq)
 
-        for gene, sample, chrn, startn, stopn in zip(dataframe.Gene, dataframe.Sample,
-                                                     dataframe.ChrNorm,
-                                                     dataframe.PosNorm1,
-                                                     dataframe.PosNorm2):
-            if str(chrn) == chrm:
+        for gene, sample, chrn, startn, stopn, strandn in zip(dataframe.Gene, dataframe.Sample,
+                                                              dataframe.ChrNorm,
+                                                              dataframe.PosNorm1,
+                                                              dataframe.PosNorm2, dataframe.StrandN):
+            if str(chrn) == chrm and strandn == '+':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
                                  str(startn)+"-"+str(stopn)+"__BP2")
-                flank_seq = seq[int(stopn):int(stopn)+int(flanking_region_size)]
+                flank_seq = seq[int(stopn)-int(flanking_region_size):int(stopn)]
+                seqsnormbp2.append(flank_seq)
+                headersbp2.append(header)
+            elif str(chrn) == chrm and strandn == '-':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopn)+"__BP2")
+                flank_seq = seqinf.Sequence(seq[int(stopn)+int(flanking_region_size):int(stopn):-1])\
+                            .complement()
                 seqsnormbp2.append(flank_seq)
                 headersbp2.append(header)
 
-        for chri, starti, stopi, strand in zip(dataframe.ChrIns, dataframe.PosIns1,
-                                               dataframe.PosIns2, dataframe.Strand):
-            if str(chri) == chrm and strand == '+':
-                flank_seq = seq[int(stopi):int(stopi)-(int(flanking_region_size)):-1]
+        for chri, starti, stopi, strandi in zip(dataframe.ChrIns, dataframe.PosIns1,
+                                                dataframe.PosIns2, dataframe.StrandI):
+            if str(chri) == chrm and strandi == '+':
+                flank_seq = seq[int(stopi):int(stopi)+(int(flanking_region_size))]
                 seqsinsbp2.append(flank_seq)
-            elif str(chri) == chrm and strand == '-':
+            elif str(chri) == chrm and strandi == '-':
                 flank_seq = seqinf.\
-                    Sequence(seq[int(starti):int(starti)+(int(flanking_region_size))])\
+                    Sequence(seq[int(stopi):int(stopi)-int(flanking_region_size):-1])\
                     .complement()
                 seqsinsbp2.append(flank_seq)
 
     output = []
     for headers, seqsnorm, seqsins in zip(headersbp1, seqsnormbp1, seqsinsbp1):
-        combined_seq = seqsnorm + seqsins
+        combined_seq = seqsins + seqsnorm
         output.append((headers, combined_seq.upper()))
 
     for headers, seqsnorm, seqsins in zip(headersbp2, seqsnormbp2, seqsinsbp2):
-        combined_seq = seqsins + seqsnorm
+        combined_seq = seqsnorm + seqsins
         output.append((headers, combined_seq.upper()))
     return output
