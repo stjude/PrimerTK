@@ -428,7 +428,7 @@ def flanking_region_fasta_translocation(genome, dataframe, flanking_region_size)
 
         for chrt, post, strandt  in zip(dataframe.ChrTrans, dataframe.PosTrans, dataframe.StrandT):
             if str(chrt) == chrm and strandt == '+':
-                flank_seq = seq[int(post)-int(flank_region_size):int(post)]
+                flank_seq = seq[int(post)-int(flanking_region_size):int(post)]
                 seqtrans.append(flank_seq)
             elif str(chrt) == chrm and strandt == '-':
                 flank_seq = seqinf.Sequence(seq[int(post)+int(flanking_region_size):int(post):-1])\
@@ -436,7 +436,7 @@ def flanking_region_fasta_translocation(genome, dataframe, flanking_region_size)
                 seqtrans.append(flank_seq)
 
     for headers, seqn, seqt in zip(headersbp, seqnorm, seqtrans):
-        combined_seq = seqn + seqt
+        combined_seq = seqt + seqn
         output.append((headers, combined_seq.upper()))
 
     return output
@@ -474,7 +474,7 @@ def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
         seq = str(seqs)
         for gene, sample, chrn, startn, stopn, strandn in zip(dataframe.Gene, dataframe.Sample,
                                                               dataframe.ChrNorm, dataframe.PosNorm1,
-                                                              dataframe.PosNorm2, dataframe.StandN):
+                                                              dataframe.PosNorm2, dataframe.StrandN):
             if str(chrn) == chrm and strandn == '+':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
                                  str(startn)+"-"+str(stopn)+"__BP1")
@@ -495,7 +495,7 @@ def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
             if str(chri) == chrm and strandi == '+':
                 flank_seq = seq[int(starti)-int(flanking_region_size):int(starti)]
                 seqsinsbp1.append(flank_seq)
-            elif str(chri) == chrm and strand == '-':
+            elif str(chri) == chrm and strandi == '-':
                 flank_seq = seqinf.Sequence(seq[int(starti)+int(flanking_region_size):int(starti):-1])\
                             .complement()
                 seqsinsbp1.append(flank_seq)
@@ -520,12 +520,12 @@ def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
 
         for chri, starti, stopi, strandi in zip(dataframe.ChrIns, dataframe.PosIns1,
                                                 dataframe.PosIns2, dataframe.StrandI):
-            if str(chri) == chrm and strand == '+':
+            if str(chri) == chrm and strandi == '+':
                 flank_seq = seq[int(stopi):int(stopi)+(int(flanking_region_size))]
                 seqsinsbp2.append(flank_seq)
-            elif str(chri) == chrm and strand == '-':
+            elif str(chri) == chrm and strandi == '-':
                 flank_seq = seqinf.\
-                    Sequence(seq[int(stopi)-int(flanking_region_size):int(stopi):-1])\
+                    Sequence(seq[int(stopi):int(stopi)-int(flanking_region_size):-1])\
                     .complement()
                 seqsinsbp2.append(flank_seq)
 

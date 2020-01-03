@@ -23,6 +23,8 @@ class TestGenomeIterator(unittest.TestCase):
         self.test_input = 'test/data/input_sv.csv'
         self.test_input2 = 'test/data/input_sv.txt'
         self.test_input3 = 'test/data/input_sv.fa'
+        self.translocation_input1 = 'test/data/translocation_input.csv'
+        self.translocation_input2 = 'test/data/translocation_input.txt'
         self.insertion_genome = gi.genome_iterator('test/data/insertion_test.fa')
         self.insertion_input1 = 'test/data/insertion_input.csv'
         self.insertion_input2 = 'test/data/insertion_input.txt'
@@ -49,19 +51,36 @@ class TestGenomeIterator(unittest.TestCase):
         """
         Asserts that proper insertion dataframe is returned from function.
         """
-        self.assertEqual(len(gi.create_dataframe_insertion_csv(self.insertion_input1)),2)
+        self.assertEqual(len(gi.create_dataframe_insertion_csv(self.insertion_input1)),4)
 
     def test_create_dataframe_insertion_txt(self):
         """
         Asserts that proper insertion dataframe is returned from function.
         """
-        self.assertEqual(len(gi.create_dataframe_insertion_txt(self.insertion_input2)),2)
+        self.assertEqual(len(gi.create_dataframe_insertion_txt(self.insertion_input2)),4)
+    def test_create_dataframe_translocation_csv(self):
+        """
+        Asserts that proper translocation dataframe is returned from function.
+        """
+        self.assertEqual(len(gi.create_dataframe_translocation_csv(self.translocation_input1)),4)
+
+    def test_create_dataframe_translocation_txt(self):
+        """
+        Asserts that proper translocation dataframe is returned from function.
+        """
+        self.assertEqual(len(gi.create_dataframe_translocation_txt(self.translocation_input2)),4)
 
     def test_file_extension_insertion_success(self):
         """
         Asserts that proper df is created when sv type is insertion.
         """
-        self.assertEqual(len(gi.file_extension(self.insertion_input1, 'insertion')),2)
+        self.assertEqual(len(gi.file_extension(self.insertion_input1, 'insertion')),4)
+
+    def test_file_extension_translocation_success(self):
+        """
+        Asserts that proper df is created when sv type is translocation.
+        """
+        self.assertEqual(len(gi.file_extension(self.translocation_input1, 'translocation')),4)
 
     def test_file_extension_deletion_success(self):
         """
@@ -106,7 +125,18 @@ class TestGenomeIterator(unittest.TestCase):
         """
         dataframe = gi.file_extension(self.test_input, 'deletion')
         self.assertTrue((gi.flanking_regions_fasta_deletion\
-                             (self.genome, dataframe, 100)[0][0]).startswith('sample'))
+                             (self.genome, dataframe, 10)[0][0]).startswith('sample'))
+
+    def test_flanking_regions_fasta_translocation(self):
+        """
+        Asserts that translocations are handled properly for both forward and reverse strand translocations.
+        """
+        dataframe = gi.file_extension(self.translocation_input2, 'translocation')
+        flanking = gi.flanking_region_fasta_translocation(self.insertion_genome, dataframe, 5)
+        self.assertTrue(flanking[0][1] == 'CCAAAAATTT')
+        self.assertTrue(flanking[1][1] == 'AAAATAATTT')
+        self.assertTrue(flanking[2][1] == 'CCAAATTTTT')
+        self.assertTrue(flanking[3][1] == 'AAAATTTTTT')
 
     def test_flanking_regions_fasta_insertion(self):
         """
@@ -114,10 +144,14 @@ class TestGenomeIterator(unittest.TestCase):
         """
         dataframe = gi.file_extension(self.insertion_input2, 'insertion')
         flanking = gi.flanking_region_fasta_insertion(self.insertion_genome, dataframe, 5)
-        self.assertTrue(flanking[0][1] == 'AAAAACCCCC')
-        self.assertTrue(flanking[1][1] == 'AAAAAGAATT')
-        self.assertTrue(flanking[2][1] == 'CTTAATTTTT')
-        self.assertTrue(flanking[3][1] == 'GGGGGTTTTT')
+        self.assertTrue(flanking[0][1] == 'GGCCCAATTT')
+        self.assertTrue(flanking[1][1] == 'AAAATAATTT')
+        self.assertTrue(flanking[2][1] == 'GGCCCAAAAT')
+        self.assertTrue(flanking[3][1] == 'AAAATAAAAT')
+        self.assertTrue(flanking[4][1] == 'AATTTAATTT')
+        self.assertTrue(flanking[5][1] == 'AATTTGGGGC')
+        self.assertTrue(flanking[6][1] == 'AAAATAATTT')
+        self.assertTrue(flanking[7][1] == 'AAAATGGGGC')
     def tearDown(self):
         pass
 
