@@ -19,6 +19,84 @@ export PATH=~/bin/primer3:$PATH
 
 Or add the above to your ~/.bashrc to prevent this in the future. Now check ot make sure `primer_tk` and `primer3_core` are accessible via the command line anywhere in your system.
 
+## 0) Input File Examples
+
+It is important to note that each translocation type as its own input file format. I will display a csv example of each with a brief explanation:
+
+deletion.csv, inversion.csv:
+```
+gene1,sample1,1,100,500
+gene2,sample2,1,1000000,2000000
+```
+Deletions and inversions are expected to take place in a defined region, therefore the csv file columns are the same.
+
+columns:
+
+ - column1: an arbitrary name for the position (I put gene but you can call it whatever you want).
+ - column2: another name, this time sample, that way if the same sample has multiple regions you can differentiate.
+ - column3: chromosome
+ - column4: sv start
+ - column5: sv stop
+
+
+translocation.csv:
+```
+gene1,sample1,1,1000000,+,2,2000000,+
+gene1,sample1,1,1000000,+,2,2000000,-
+gene1,sample1,1,1000000,-,2,2000000,+
+gene1,sample1,1,1000000,-,2,2000000,-
+```
+columns:
+
+ - column3: the chromosome that is being translocated.
+ - column4: the position the translocation event starts
+ - column5: the strand being translocated
+ - column6: the chromosome receiving the translocation
+ - column7: the position it is starting
+ - column8: which strand the sequence is translocating onto
+
+Consider these situations from the above (all circumstances):
+```
+(+)SeqZ:	      	  (+)SeqM: 	      output (++):
+
+ZZZZZZZZZZZ		   MMMMMMMMMMM	      MMMMMMZZZZZ
+zzzzzzzzzzz		   mmmmmmmmmmm	      mmmmmmmmmmm
+
+(+)SeqZ:	      	  (-)SeqM:	      output (+-):
+
+ZZZZZZZZZZZ		   MMMMMMMMMMM	      MMMMMMMMMMM
+zzzzzzzzzzz		   mmmmmmmmmmm	      ZZZZZmmmmmm
+
+(-)SeqZ:	      	  (+)SeqM:	      output (-+):
+
+ZZZZZZZZZZZ		   MMMMMMMMMMM	      MMMMMMzzzzz
+zzzzzzzzzzz		   mmmmmmmmmmm	      mmmmmmmmmmm
+
+(+)SeqZ:	      	  (-)SeqM:	      output (--):
+
+ZZZZZZZZZZZ		   MMMMMMMMMMM	      MMMMMMMMMMM
+zzzzzzzzzzz		   mmmmmmmmmmm	      zzzzzmmmmmm
+```
+So this gives us a brief diagram that we can always expect the translocated sequence to be going from 5' -> 3' and all sequence manipulation to generate the proper primers is handled for you.
+
+insertion.csv:
+```
+gene1,sample1,1,1000000,1005000,+,2,2000000,2005000,-
+```
+
+columns:
+
+ - column3: chr of sequence being inserted
+ - column4: start position of sequence being inserted
+ - column5: stop position of sequence being inserted
+ - column6: strand of sequence being inserted
+ - column7: chr where insertion is
+ - column8: start position on chr where insertion is
+ - column9: stop position on chr where insertion is
+ - column10: strand where the sequence is being inserted
+
+A pair of primers is generated for each insertion breakpoint by the same logic used in the translocation. 
+
 ## 1) Setup a tutorial directory called sv_tutorial with files from test
 
 I will do everything in a directory called sv_tutorial:
@@ -51,7 +129,7 @@ usage: primer_tk iterator_sv [-h] -ref REF_GENOME -in REGIONS_FILE
                              [-sr PRODUCT_SIZE_RANGE]
                              [-flank FLANKING_REGION_SIZE]
                              [-st SEQUENCE_TARGET] -mp MISPRIMING -tp
-                             THERMOPATH -sv {deletion,inversion,insertion}
+                             THERMOPATH -sv {deletion,inversion,insertion,translocation}
 
 optional arguments:
   -h, --help            show this help message and exit
