@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='primer_tk',
-    version='1.0.2',
+    version='1.0.3',
     scripts=['./scripts/primer_tk'],
     author="Dennis Kennetz",
     author_email="dennis.kennetz@stjude.org",
@@ -24,7 +24,7 @@ setuptools.setup(
     zip_safe=True,
     license='Apache2.0',
     url = 'https://github.com/stjude/PrimerTK',
-    download_url = 'https://github.com/stjude/PrimerTK/archive/1.0.2.tar.gz',
+    download_url = 'https://github.com/stjude/PrimerTK/archive/1.0.3.tar.gz',
     classifiers=[
         "Programming Language :: Python :: 3",
         'Environment :: Console',
