@@ -400,12 +400,11 @@ def flanking_region_fasta_translocation(genome, dataframe, flanking_region_size)
         dataframe (pd.DataFrame): dataframe with sample info.
         flanking_region_size  (int): length of sequence to pad position with.
     Returns:
-        output (list): (header + seq)
+        result (dict): {header: seq}
     """
     output = []
-    headersbp = []
-    seqnorm = []
-    seqtrans = []
+    samp_norm = {}
+    samp_tran = {}
     for headers, seqs in genome:
         chrm = str(headers)
         seq = str(seqs)
@@ -416,30 +415,35 @@ def flanking_region_fasta_translocation(genome, dataframe, flanking_region_size)
             if str(chrn) == chrm and strandn == '+':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+str(posn)+"-"+str(post))
                 flank_seq = seq[int(posn):int(posn)+int(flanking_region_size)]
-                headersbp.append(header)
-                seqnorm.append(flank_seq)
-
+                samp_norm[header] = flank_seq
             elif str(chrn) == chrm and strandn == '-':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+str(posn)+"-"+str(post))
                 flank_seq = seqinf.Sequence(seq[int(posn):int(posn)-(int(flanking_region_size)):-1])\
                             .complement()
-                headersbp.append(header)
-                seqnorm.append(flank_seq)
+                samp_norm[header] = flank_seq
 
-        for chrt, post, strandt  in zip(dataframe.ChrTrans, dataframe.PosTrans, dataframe.StrandT):
+        for gene, sample, chrn, posn, strandn, chrt, post, strandt  in zip(dataframe.Gene, dataframe.Sample,
+                                                                           dataframe.ChrNorm, dataframe.PosNorm,
+                                                                           dataframe.StrandN, dataframe.ChrTrans,
+                                                                           dataframe.PosTrans, dataframe.StrandT):
             if str(chrt) == chrm and strandt == '+':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+str(posn)+"-"+str(post))
                 flank_seq = seq[int(post)-int(flanking_region_size):int(post)]
-                seqtrans.append(flank_seq)
+                samp_tran[header] = flank_seq
             elif str(chrt) == chrm and strandt == '-':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+str(posn)+"-"+str(post))
                 flank_seq = seqinf.Sequence(seq[int(post)+int(flanking_region_size):int(post):-1])\
                             .complement()
-                seqtrans.append(flank_seq)
+                samp_tran[header] = flank_seq
 
-    for headers, seqn, seqt in zip(headersbp, seqnorm, seqtrans):
-        combined_seq = seqt + seqn
-        output.append((headers, combined_seq.upper()))
+    result = {}
+    for name1, seq1 in samp_norm.items():
+        for name2, seq2 in samp_tran.items():
+            if name1 == name2:
+                outseq = seq2+seq1
+                result[name1] = outseq
 
-    return output
+    return result
                 
 def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
     """
@@ -461,80 +465,90 @@ def flanking_region_fasta_insertion(genome, dataframe, flanking_region_size):
         flanking_region_size (int): length of sequence upstream dna downstream of
         input coordinate position to pull as sequence to design primers around.
     Returns:
-        output (list): (header + seq)
+        result (dict): {header: seq}
     """
-    headersbp1 = []
-    seqsnormbp1 = []
-    seqsinsbp1 = []
-    headersbp2 = []
-    seqsnormbp2 = []
-    seqsinsbp2 = []
+    seqsnormbp1 = {}
+    seqsinsbp1 = {}
+    seqsnormbp2 = {}
+    seqsinsbp2 = {}
     for headers, seqs in genome:
         chrm = str(headers)
         seq = str(seqs)
-        for gene, sample, chrn, startn, stopn, strandn in zip(dataframe.Gene, dataframe.Sample,
-                                                              dataframe.ChrNorm, dataframe.PosNorm1,
-                                                              dataframe.PosNorm2, dataframe.StrandN):
+        for gene, sample, chrn, startn, stopn, strandn, stopi in zip(dataframe.Gene, dataframe.Sample,
+                                                                     dataframe.ChrNorm, dataframe.PosNorm1,
+                                                                     dataframe.PosNorm2, dataframe.StrandN,
+                                                                     dataframe.PosIns2):
             if str(chrn) == chrm and strandn == '+':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
-                                 str(startn)+"-"+str(stopn)+"__BP1")
+                                 str(startn)+"-"+str(stopi)+"__BP1")
                 flank_seq = seq[int(startn):int(startn)+int(flanking_region_size)]
-                seqsnormbp1.append(flank_seq)
-                headersbp1.append(header)
-
+                seqsnormbp1[header] = flank_seq
             elif str(chrn) == chrm and strandn == '-':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
-                             str(startn)+"-"+str(stopn)+"__BP1")
+                             str(startn)+"-"+str(stopi)+"__BP1")
                 flank_seq = seqinf.Sequence(seq[int(startn):int(startn)-(int(flanking_region_size)):-1])\
                             .complement()
-                seqsnormbp1.append(flank_seq)
-                headersbp1.append(header)
+                seqsnormbp1[header] = flank_seq
 
-        for chri, starti, stopi, strandi in zip(dataframe.ChrIns, dataframe.PosIns1,
-                                               dataframe.PosIns2, dataframe.StrandI):
+        for gene, sample, chrn, startn, chri, starti, stopi, strandi in zip(dataframe.Gene, dataframe.Sample,
+                                                                            dataframe.ChrNorm, dataframe.PosNorm1,
+                                                                            dataframe.ChrIns, dataframe.PosIns1,
+                                                                            dataframe.PosIns2, dataframe.StrandI):
             if str(chri) == chrm and strandi == '+':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopi)+"__BP1")
                 flank_seq = seq[int(starti)-int(flanking_region_size):int(starti)]
-                seqsinsbp1.append(flank_seq)
+                seqsinsbp1[header] = flank_seq
             elif str(chri) == chrm and strandi == '-':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopi)+"__BP1")
                 flank_seq = seqinf.Sequence(seq[int(starti)+int(flanking_region_size):int(starti):-1])\
                             .complement()
-                seqsinsbp1.append(flank_seq)
-
-        for gene, sample, chrn, startn, stopn, strandn in zip(dataframe.Gene, dataframe.Sample,
-                                                              dataframe.ChrNorm,
-                                                              dataframe.PosNorm1,
-                                                              dataframe.PosNorm2, dataframe.StrandN):
+                seqsinsbp1[header] = flank_seq
+        for gene, sample, chrn, startn, stopn, strandn, stopi in zip(dataframe.Gene, dataframe.Sample,
+                                                                     dataframe.ChrNorm,
+                                                                     dataframe.PosNorm1,
+                                                                     dataframe.PosNorm2, dataframe.StrandN,
+                                                                     dataframe.PosIns2):
             if str(chrn) == chrm and strandn == '+':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
-                                 str(startn)+"-"+str(stopn)+"__BP2")
+                                 str(startn)+"-"+str(stopi)+"__BP2")
                 flank_seq = seq[int(stopn)-int(flanking_region_size):int(stopn)]
-                seqsnormbp2.append(flank_seq)
-                headersbp2.append(header)
+                seqsnormbp2[header] = flank_seq
             elif str(chrn) == chrm and strandn == '-':
                 header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
-                                 str(startn)+"-"+str(stopn)+"__BP2")
+                                 str(startn)+"-"+str(stopi)+"__BP2")
                 flank_seq = seqinf.Sequence(seq[int(stopn)+int(flanking_region_size):int(stopn):-1])\
                             .complement()
-                seqsnormbp2.append(flank_seq)
-                headersbp2.append(header)
+                seqsnormbp2[header] = flank_seq
 
-        for chri, starti, stopi, strandi in zip(dataframe.ChrIns, dataframe.PosIns1,
-                                                dataframe.PosIns2, dataframe.StrandI):
+        for gene, sample, chrn, startn, chri, starti, stopi, strandi in zip(dataframe.Gene, dataframe.Sample,
+                                                                            dataframe.ChrNorm, dataframe.PosNorm1,
+                                                                            dataframe.ChrIns, dataframe.PosIns1,
+                                                                            dataframe.PosIns2, dataframe.StrandI):
             if str(chri) == chrm and strandi == '+':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopi)+"__BP2")
                 flank_seq = seq[int(stopi):int(stopi)+(int(flanking_region_size))]
-                seqsinsbp2.append(flank_seq)
+                seqsinsbp2[header] = flank_seq
             elif str(chri) == chrm and strandi == '-':
+                header = str(str(sample)+"_"+str(gene)+"_"+str(chrn)+":"+\
+                                 str(startn)+"-"+str(stopi)+"__BP2")
                 flank_seq = seqinf.\
                     Sequence(seq[int(stopi):int(stopi)-int(flanking_region_size):-1])\
                     .complement()
-                seqsinsbp2.append(flank_seq)
+                seqsinsbp2[header] = flank_seq
 
-    output = []
-    for headers, seqsnorm, seqsins in zip(headersbp1, seqsnormbp1, seqsinsbp1):
-        combined_seq = seqsins + seqsnorm
-        output.append((headers, combined_seq.upper()))
+    result = {}
+    for name1, seq1 in seqsnormbp1.items():
+        for name2, seq2 in seqsinsbp1.items():
+            if name1 == name2:
+                outseq = seq2+seq1
+                result[name1] = outseq
 
-    for headers, seqsnorm, seqsins in zip(headersbp2, seqsnormbp2, seqsinsbp2):
-        combined_seq = seqsnorm + seqsins
-        output.append((headers, combined_seq.upper()))
-    return output
+    for name1, seq1 in seqsnormbp2.items():
+        for name2, seq2 in seqsinsbp2.items():
+            if name1 == name2:
+                outseq = seq1+seq2
+                result[name1] = outseq
+    return result

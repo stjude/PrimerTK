@@ -63,7 +63,7 @@ def iterator_sv(args):
         flanking = open("flanking_regions.%s.fasta" %dataset_name, 'w')
         flank_data = giv.flanking_region_fasta_insertion(genome, small_regions, args.flanking_region_size)
         primer3_in = open("primer3_input.%s.txt" % dataset_name, 'w')
-        for head, seq in flank_data:
+        for head, seq in flank_data.items():
             flanking.write(">"+head+'\n'+seq+'\n')
             primer3_in.write(utils.primer3_input(head, seq, args))
     elif args.sv == 'translocation':
@@ -73,7 +73,7 @@ def iterator_sv(args):
         flanking = open("flanking_regions.%s.fasta" %dataset_name, 'w')
         flank_data = giv.flanking_region_fasta_translocation(genome, small_regions, args.flanking_region_size)
         primer3_in = open("primer3_input.%s.txt" %dataset_name, 'w')
-        for head, seq in flank_data:
+        for head, seq in flank_data.items():
             flanking.write(">"+head+'\n'+seq+'\n')
             primer3_in.write(utils.primer3_input(head, seq, args))
     flanking.close()
