@@ -57,11 +57,18 @@ class Genome:
         """
         fasta_seqs = []
         regions_df = parse_input(regions_file)
-        matched = 
+        self.logger.info("Attempting to create flanking seqs from input")
+        match_chr_to_genome(regions_df, self.reference)
         for headers, seqs in self.reference:
             chrm = str(headers)
             seq = str(seqs)
-            for sample, gene, chrom, pos in zip()
+            for sample, tag, chrom, pos in zip(regions_df['Sample'], regions_df['Tag'], regions_df['Chr'], regions_df['Pos']):
+                if str(chrom) == chrm:
+                    header = f"{sample}_{tag}_{chrom}:{pos}"
+                    flank_seq = seq[int(pos)-int(flanking_region_size):int(pos)+int(flanking_region_size)]
+                    fasta_seqs.append((header, flank_seq.upper()))
+        self.logger.info("Flanking sequences created!")
+        return fasta_seqs
 
 def parse_input(regions_file: str) -> pd.DataFrame:
     """ Parses regions input file and returns dataframe """
@@ -70,8 +77,12 @@ def parse_input(regions_file: str) -> pd.DataFrame:
         try:
             assert len(header.split(',')) ==  4
         except AssertionError:
-            sys.exit("input file should be comma separated with 4 columns, Sample,Gene,Chr,Pos")
+            sys.exit("input file should be comma separated with 4 columns, Sample,Tag,Chr,Pos")
+        split_header = header.rstrip().split(',')
+        assert all(any(i in j for j in ["Sample", "Tag", "Chr", "Pos"]) for i in split_header), "Input file should contain header: Sample,Tag,Chr,Pos"
+
     regions_df = pd.read_csv(regions_file, header=0, dtype={'Chr': str})
+    return regions_df
 
 def match_chr_to_genome(dataframe: pd.DataFrame, reference: List) -> pd.DataFrame:
     """ Matches formatting between regions file and reference genome for chromosome nomenclature
