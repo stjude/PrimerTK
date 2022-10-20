@@ -78,7 +78,7 @@ def add_iterator_subparser(subparser):
 
     return parser
 
-def genome_iterator(genome):
+def genome_iterator(genome: list) -> list:
     """
     Uses Biopython SeqIO to parse a genome Fasta and store each chr and
     sequence as a list.

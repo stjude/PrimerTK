@@ -11,7 +11,7 @@ from typing import List
 from Bio import SeqIO
 import pandas as pd
 
-class Genome:
+class Fasta:
     """
     Parses a Genome build fasta and returns a list of iterators.
     Attributes:
@@ -19,9 +19,7 @@ class Genome:
      - verbosity: logger verbosity, default to INFO
      - dataset: dataset name
     """
-    def __init__(self, fasta: str, dataset: str, verbosity="INFO"):
-        self.fasta = fasta
-        self.dataset = dataset
+    def __init__(self, verbosity="INFO"):
         self.logger = self.create_logger(verbosity)
         self.logger.debug("Genome object was created.")
         self.reference = []
@@ -29,25 +27,28 @@ class Genome:
     def create_logger(self, verbosity: str) -> logging.Logger:
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
-        fh = logging.FileHandler(f'{self.dataset}.log', mode='w')
+        fh = logging.FileHandler('primertk.log', mode='w')
         fh.setLevel(logging.DEBUG)
         fh_formatter = logging.Formatter('%(asctime)s %(process)d-%(levelname)s: %(message)s')
         fh.setFormatter(fh_formatter)
         logger.addHandler(fh)
         return logger
 
-    def genome_iterator(self) -> None:
-        """ Returns a list of iterators of a genome."""
-        self.logger.info(f'Parsing reference {self.fasta}')
+    @classmethod
+    def from_fasta(cls, fasta):
+        """ Returns a Fasta instance from a fasta file"""
+        c = cls()
+        c.logger.info(f'Parsing reference {fasta}')
         try:
-            with open(self.fasta, 'r') as fasta:
+            with open(fasta, 'r') as fasta:
                 for record in SeqIO.parse(fasta, 'fasta'):
-                    self.reference.append((record.id, record.seq))
+                    c.reference.append((record.id, record.seq))
         except FileNotFoundError:
-            self.logger.error(f'{self.fasta} does not exist or you do not have permission to access it.')
+            c.logger.error(f'{fasta} does not exist or you do not have permission to access it.')
             sys.exit(1)
+        return c
     
-    def create_flanking_regions_fasta(self, regions_file: str, flanking_region_size: int) -> List[tuple]:
+    def create_flanking_regions(self, regions_file: str, flanking_region_size: int) -> List[tuple]:
         """ Creates Fasta with flanking regions for batch primer processing 
         Args:
             regions_file: input file to design flanking seqs around
@@ -65,7 +66,7 @@ class Genome:
             for sample, tag, chrom, pos in zip(regions_df['Sample'], regions_df['Tag'], regions_df['Chr'], regions_df['Pos']):
                 if str(chrom) == chrm:
                     header = f"{sample}_{tag}_{chrom}:{pos}"
-                    flank_seq = seq[int(pos)-int(flanking_region_size):int(pos)+int(flanking_region_size)]
+                    flank_seq = seq[int(pos)-int(flanking_region_size):int(pos)+int(flanking_region_size)+1]
                     fasta_seqs.append((header, flank_seq.upper()))
         self.logger.info("Flanking sequences created!")
         return fasta_seqs
@@ -82,6 +83,7 @@ def parse_input(regions_file: str) -> pd.DataFrame:
         assert all(any(i in j for j in ["Sample", "Tag", "Chr", "Pos"]) for i in split_header), "Input file should contain header: Sample,Tag,Chr,Pos"
 
     regions_df = pd.read_csv(regions_file, header=0, dtype={'Chr': str})
+    regions_df['Pos'] = regions_df['Pos'] - 1
     return regions_df
 
 def match_chr_to_genome(dataframe: pd.DataFrame, reference: List) -> pd.DataFrame:
