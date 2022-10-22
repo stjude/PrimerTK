@@ -12,25 +12,30 @@ import pandas as pd
 from primertk import Genome
 
 @pytest.fixture
-def fasta():
+def local_dir() -> str:
+    return os.path.dirname(os.path.realpath(__file__))
+
+@pytest.fixture
+def fasta(local_dir: str) -> Genome.Fasta:
     ''' Returns a Fasta instance with loaded fasta '''
-    return Genome.Fasta.from_fasta('./data/test_standard.fa')
+    return Genome.Fasta.from_fasta(os.path.join(local_dir, './data/test_standard.fa'))
 
 @pytest.fixture
-def regions_file():
-    return "./data/test_input_standard.csv"
+def regions_file(local_dir: str) -> str:
+    local_dir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(local_dir, "./data/test_input_standard.csv")
 
 @pytest.fixture
-def header_fail():
-    return "./data/test_no_header.csv"
+def header_fail(local_dir: str) -> str:
+    return os.path.join(local_dir, "./data/test_no_header.csv")
 
 def test_logger(fasta):
     assert isinstance(fasta.logger, logging.Logger)
 
 def test_from_fasta(fasta):
     assert len(fasta.reference) == 2
-    assert fasta.reference[0][0] == '1'
-    assert fasta.reference[1][0] == '2'
+    assert '1' in fasta.reference
+    assert '2' in fasta.reference
 
 def test_parse_input(regions_file):
     assert isinstance(Genome.parse_input(regions_file), pd.DataFrame)
