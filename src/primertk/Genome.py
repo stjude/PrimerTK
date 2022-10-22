@@ -22,7 +22,7 @@ class Fasta:
     def __init__(self, verbosity="INFO"):
         self.logger = self.create_logger(verbosity)
         self.logger.debug("Genome object was created.")
-        self.reference = []
+        self.reference = dict()
 
     def create_logger(self, verbosity: str) -> logging.Logger:
         logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class Fasta:
         try:
             with open(fasta, 'r') as fasta:
                 for record in SeqIO.parse(fasta, 'fasta'):
-                    c.reference.append((record.id, record.seq))
+                    c.reference[record.id] = record.seq
         except FileNotFoundError:
             c.logger.error(f'{fasta} does not exist or you do not have permission to access it.')
             sys.exit(1)
@@ -60,9 +60,9 @@ class Fasta:
         regions_df = parse_input(regions_file)
         self.logger.info("Attempting to create flanking seqs from input")
         match_chr_to_genome(regions_df, self.reference)
-        for headers, seqs in self.reference:
+        for headers in self.reference:
             chrm = str(headers)
-            seq = str(seqs)
+            seq = str(self.reference[headers])
             for sample, tag, chrom, pos in zip(regions_df['Sample'], regions_df['Tag'], regions_df['Chr'], regions_df['Pos']):
                 if str(chrom) == chrm:
                     header = f"{sample}_{tag}_{chrom}:{pos}"
@@ -93,7 +93,7 @@ def match_chr_to_genome(dataframe: pd.DataFrame, reference: List) -> pd.DataFram
         dataframe: dataframe created from input regions file
         reference: parsed reference list
     """
-    if dataframe['Chr'].str.contains("chr").any() and "chr" not in str(reference[0][0]):
+    if dataframe['Chr'].str.contains("chr").any() and "chr" not in reference:
         dataframe['Chr'] = dataframe['Chr'].str.replace('chr', '')
-    elif not dataframe['Chr'].str.contains("chr").any() and "chr" in str(reference[0][0]):
+    elif not dataframe['Chr'].str.contains("chr").any() and "chr" in reference:
         dataframe['Chr'] = 'chr' + dataframe['Chr']
