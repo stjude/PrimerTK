@@ -73,7 +73,7 @@ def parse_input(regions_file: str) -> pd.DataFrame:
     regions_df['Pos'] = regions_df['Pos'] - 1
     return regions_df
 
-def match_chr_to_genome(dataframe: pd.DataFrame, reference: List) -> pd.DataFrame:
+def match_chr_to_genome(dataframe: pd.DataFrame, reference: list) -> pd.DataFrame:
     """ Matches formatting between regions file and reference genome for chromosome nomenclature
     Designed to make life a bit easier on the user.
     Args:
