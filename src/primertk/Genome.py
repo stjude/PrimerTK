@@ -35,7 +35,7 @@ class Fasta:
             sys.exit(1)
         return c
     
-    def create_flanking_regions(self, regions_file: str, flanking_region_size: int) -> list(tuple):
+    def create_flanking_regions(self, regions_file: str, flanking_region_size: int) -> list:
         """ Creates Fasta with flanking regions for batch primer processing 
         Args:
             regions_file: input file to design flanking seqs around
