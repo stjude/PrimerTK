@@ -3,7 +3,6 @@ Unittest for Genome
 """
 
 import os
-import logging
 import pytest
 
 import pandas as pd
@@ -28,9 +27,6 @@ def regions_file(local_dir: str) -> str:
 @pytest.fixture
 def header_fail(local_dir: str) -> str:
     return os.path.join(local_dir, "./data/test_no_header.csv")
-
-def test_logger(fasta):
-    assert isinstance(fasta.logger, logging.Logger)
 
 def test_from_fasta(fasta):
     assert len(fasta.reference) == 2

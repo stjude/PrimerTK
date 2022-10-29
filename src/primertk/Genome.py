@@ -6,7 +6,6 @@ Dependencies:
 
 import logging
 import sys
-from typing import List
 
 from Bio import SeqIO
 import pandas as pd
@@ -19,32 +18,20 @@ class Fasta:
      - verbosity: logger verbosity, default to INFO
      - dataset: dataset name
     """
-    def __init__(self, verbosity="INFO"):
-        self.logger = self.create_logger(verbosity)
-        self.logger.debug("Genome object was created.")
+    def __init__(self):
         self.reference = dict()
-
-    def create_logger(self, verbosity: str) -> logging.Logger:
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
-        fh = logging.FileHandler('primertk.log', mode='w')
-        fh.setLevel(logging.DEBUG)
-        fh_formatter = logging.Formatter('%(asctime)s %(process)d-%(levelname)s: %(message)s')
-        fh.setFormatter(fh_formatter)
-        logger.addHandler(fh)
-        return logger
 
     @classmethod
     def from_fasta(cls, fasta):
         """ Returns a Fasta instance from a fasta file"""
         c = cls()
-        c.logger.info(f'Parsing reference {fasta}')
+        logging.info(f'Parsing reference {fasta}')
         try:
             with open(fasta, 'r') as fasta:
                 for record in SeqIO.parse(fasta, 'fasta'):
                     c.reference[record.id] = record.seq
         except FileNotFoundError:
-            c.logger.error(f'{fasta} does not exist or you do not have permission to access it.')
+            logging.error(f'{fasta} does not exist or you do not have permission to access it.')
             sys.exit(1)
         return c
     
@@ -58,7 +45,7 @@ class Fasta:
         """
         fasta_seqs = []
         regions_df = parse_input(regions_file)
-        self.logger.info("Attempting to create flanking seqs from input")
+        logging.info("Attempting to create flanking seqs from input")
         match_chr_to_genome(regions_df, self.reference)
         for headers in self.reference:
             chrm = str(headers)
@@ -68,7 +55,7 @@ class Fasta:
                     header = f"{sample}_{tag}_{chrom}:{pos}"
                     flank_seq = seq[int(pos)-int(flanking_region_size):int(pos)+int(flanking_region_size)+1]
                     fasta_seqs.append((header, flank_seq.upper()))
-        self.logger.info("Flanking sequences created!")
+        logging.info("Flanking sequences created!")
         return fasta_seqs
 
 def parse_input(regions_file: str) -> pd.DataFrame:
